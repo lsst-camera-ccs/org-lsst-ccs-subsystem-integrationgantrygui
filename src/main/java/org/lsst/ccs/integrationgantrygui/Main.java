@@ -3,12 +3,14 @@ package org.lsst.ccs.integrationgantrygui;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -16,6 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.SwingUtilities;
 import nom.tam.fits.TruncatedFileException;
 
 /**
@@ -67,6 +70,7 @@ public class Main {
             workQueue.execute(runnable);
         }
 
+        @SuppressWarnings("SleepWhileInLoop")
         Runnable runnable = () -> {
             for (;;) {
                 try {
@@ -84,19 +88,35 @@ public class Main {
             for (;;) {
                 WatchKey take = watchService.take();
                 take.pollEvents().stream().map((event) -> (Path) event.context()).forEach((path) -> {
-                    if (watchDir.resolve(path).toFile().length() == 5_071_680) {
-                        Integer index = cameraMap.get(path.getFileName().toString().substring(0, 3));
-                        if (index != null) {
-                            LinkedBlockingQueue<Path> queue = queues[index];
-                            Path poll = queue.poll(); // Discard any files not yet processed
-                            if (poll == null) {
-                                j++;
+                    Path fullPath = watchDir.resolve(path);
+                    String fileName = fullPath.getFileName().toString();
+                    Integer index = cameraMap.get(fullPath.getFileName().toString().substring(0, 3));
+                    if (index != null) {
+                        if (fileName.endsWith(".fits")) {
+                            if (fullPath.toFile().length() == 5_071_680) {
+
+                                LinkedBlockingQueue<Path> queue = queues[index];
+                                Path poll = queue.poll(); // Discard any files not yet processed
+                                if (poll == null) {
+                                    j++;
+                                }
+                                queue.add(watchDir.resolve(path));
+                                i++;
+                                if (i % 100 == 0) {
+                                    System.out.printf("%d%% of files were processed\n", j);
+                                    j = 0;
+                                }
                             }
-                            queue.add(watchDir.resolve(path));
-                            i++;
-                            if (i % 100 == 0) {
-                                System.out.printf("%d%% of files were processed\n", j);
-                                j = 0;
+                        } else if (fileName.endsWith(".txt")) {
+                            try {
+                                List<String> text = Files.readAllLines(fullPath);
+                                if (!text.isEmpty()) {
+                                    SwingUtilities.invokeLater(() -> {
+                                        frame.setLabel(index, text.get(0));
+                                    });
+                                }
+                            } catch (IOException ex) {
+                                LOG.log(Level.SEVERE, "Error reading text file", ex);
                             }
                         }
                     }
