@@ -32,7 +32,7 @@ public class FitsFast4 {
             int bScale = header.getIntValue(Standard.BSCALE, 1);
             final int imageSize = nAxis1 * nAxis2;
 
-            System.out.printf("%d %d %d\n", size, file.getFilePointer(), imageSize);
+            //System.out.printf("%d %d %d\n", size, file.getFilePointer(), imageSize);
             ByteBuffer bb = ByteBuffer.allocateDirect(nAxis1 * nAxis2 * bitpix / 8);
             FileChannel channel = file.getChannel();
             channel.position(file.getFilePointer());
@@ -46,28 +46,27 @@ public class FitsFast4 {
             long stop = System.currentTimeMillis();
 
             bb.flip();
-            System.out.println(bb.remaining());
-            System.out.printf("Read image of type %d size %dx%d in %dms\n", bitpix, nAxis1, nAxis2, stop - start);
+            //System.out.println(bb.remaining());
+            //System.out.printf("Read image of type %d size %dx%d in %dms\n", bitpix, nAxis1, nAxis2, stop - start);
 
             int max = 72;
-            byte[] lin = new byte[72];
-            for (int i = 0; i < 72; i++) {
-                lin[i] = (byte) (i * 256 / 72);
+            byte[] lin = new byte[max];
+            for (int i = 0; i < max; i++) {
+                lin[i] = (byte) (i * 255 / max);
             }
-            byte[] log = new byte[256];
-            for (int i = 0; i < 256; i++) {
-                log[i] = (byte) (Math.log(i+1) * 255 / Math.log(256));
+            byte[] log = new byte[72];
+            for (int i = 0; i < max; i++) {
+                log[i] = (byte) (Math.log(i+1) * 255 / Math.log(max));
             }
-            IndexColorModel cm = new IndexColorModel(8, max, lin, lin, lin);
+            IndexColorModel cm = new IndexColorModel(8, max, log, log, log);
             BufferedImage image = new BufferedImage(nAxis1, nAxis2, BufferedImage.TYPE_BYTE_INDEXED, cm);
             DataBuffer db = image.getRaster().getDataBuffer();
-            System.out.println(db.getClass());
             start = System.currentTimeMillis();
             for (int i = 0; i < imageSize; i++) {
                 db.setElem(i, bb.get());
             }
             stop = System.currentTimeMillis();
-            System.out.printf("Write image of type %d size %dx%d in %dms\n", bitpix, nAxis1, nAxis2, stop - start);
+            //System.out.printf("Write image of type %d size %dx%d in %dms\n", bitpix, nAxis1, nAxis2, stop - start);
             
             return image;
         }

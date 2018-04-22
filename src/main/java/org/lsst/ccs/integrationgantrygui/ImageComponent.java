@@ -54,7 +54,7 @@ public class ImageComponent extends JComponent {
             long start = System.currentTimeMillis();
             g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
             long stop = System.currentTimeMillis();
-            System.out.printf("Paint image of type %d and size %dx%d took %dms\n", image.getType(), image.getWidth(), image.getHeight(), stop - start);
+            //System.out.printf("Paint image of type %d and size %dx%d took %dms\n", image.getType(), image.getWidth(), image.getHeight(), stop - start);
         }
     }
 }

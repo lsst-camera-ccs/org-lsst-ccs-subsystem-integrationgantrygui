@@ -106,7 +106,7 @@ public class FitsFast {
         
         short[] log = new short[256];
         for (int i=0; i<256; i++) {
-            log[i] = (byte) (Math.log(i+1) * 65535 / Math.log(256));
+            log[i] = (short) (Math.log(i+1) * 65535 / Math.log(256));
         }
         
 //        return image;

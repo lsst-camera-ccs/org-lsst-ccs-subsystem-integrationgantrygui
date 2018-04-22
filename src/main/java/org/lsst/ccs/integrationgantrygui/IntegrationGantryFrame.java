@@ -1,5 +1,7 @@
 package org.lsst.ccs.integrationgantrygui;
 
+import java.awt.BorderLayout;
+import java.awt.Container;
 import java.awt.image.BufferedImage;
 import javax.swing.JLabel;
 
@@ -38,7 +40,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        javax.swing.JPanel jPanel1 = new javax.swing.JPanel();
+        jPanel1 = new javax.swing.JPanel();
         javax.swing.JPanel jPanel2 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
         imageComponent1 = new org.lsst.ccs.integrationgantrygui.ImageComponent();
@@ -119,6 +121,12 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 4"));
 
+        imageComponent4.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                imageComponent4MouseClicked(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
         jPanel5.setLayout(jPanel5Layout);
         jPanel5Layout.setHorizontalGroup(
@@ -170,6 +178,17 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_displayComboBoxActionPerformed
 
+    private void imageComponent4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent4MouseClicked
+        if (evt.getClickCount() == 2) {
+            Container parent = evt.getComponent().getParent();
+            parent.getParent().remove(parent);
+            this.getContentPane().remove(jPanel1);
+            this.getContentPane().add(parent,BorderLayout.CENTER);
+            this.getContentPane().validate();
+            this.repaint();
+        }
+    }//GEN-LAST:event_imageComponent4MouseClicked
+
     /**
      * @param args the command line arguments
      */
@@ -213,6 +232,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
+    private javax.swing.JPanel jPanel1;
     // End of variables declaration//GEN-END:variables
 
 }
