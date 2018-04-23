@@ -11,6 +11,8 @@ import javax.swing.JLabel;
  */
 public class IntegrationGantryFrame extends javax.swing.JFrame {
 
+    private static final long serialVersionUID = 1L;
+
     private final ImageComponent[] imageComponents;
     private final JLabel[] labels;
 
@@ -205,17 +207,11 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
                     break;
                 }
             }
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(IntegrationGantryFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(IntegrationGantryFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(IntegrationGantryFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
+        } catch (ClassNotFoundException | InstantiationException | IllegalAccessException | javax.swing.UnsupportedLookAndFeelException ex) {
             java.util.logging.Logger.getLogger(IntegrationGantryFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-
+        
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new IntegrationGantryFrame().setVisible(true);
