@@ -4,6 +4,7 @@ import java.awt.BorderLayout;
 import java.awt.Container;
 import java.awt.image.BufferedImage;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 
 /**
  *
@@ -19,14 +20,14 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
      */
     public IntegrationGantryFrame() {
         initComponents();
-        imageComponents = new ImageComponent[]{ imageComponent1, imageComponent2, imageComponent3, imageComponent4 };
-        labels = new JLabel[] { jLabel1, jLabel2, jLabel3, jLabel4 };
+        imageComponents = new ImageComponent[]{imageComponent1, imageComponent2, imageComponent3, imageComponent4};
+        labels = new JLabel[]{jLabel1, jLabel2, jLabel3, jLabel4};
     }
 
     void setImage(int i, BufferedImage image) {
         imageComponents[i].setImage(image);
     }
-    
+
     void setLabel(int i, String text) {
         labels[i].setText(text);
     }
@@ -50,7 +51,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         javax.swing.JPanel jPanel4 = new javax.swing.JPanel();
         jLabel3 = new javax.swing.JLabel();
         imageComponent3 = new org.lsst.ccs.integrationgantrygui.ImageComponent();
-        javax.swing.JPanel jPanel5 = new javax.swing.JPanel();
+        jPanel5 = new javax.swing.JPanel();
         jLabel4 = new javax.swing.JLabel();
         imageComponent4 = new org.lsst.ccs.integrationgantrygui.ImageComponent();
         javax.swing.JPanel jPanel6 = new javax.swing.JPanel();
@@ -63,84 +64,54 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         jPanel1.setLayout(new java.awt.GridLayout(2, 2));
 
         jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 1"));
+        jPanel2.setLayout(new java.awt.BorderLayout());
+        jPanel2.add(jLabel1, java.awt.BorderLayout.NORTH);
 
-        javax.swing.GroupLayout jPanel2Layout = new javax.swing.GroupLayout(jPanel2);
-        jPanel2.setLayout(jPanel2Layout);
-        jPanel2Layout.setHorizontalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-            .addComponent(imageComponent1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
-        );
-        jPanel2Layout.setVerticalGroup(
-            jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel2Layout.createSequentialGroup()
-                .addComponent(jLabel1)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(imageComponent1, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
-        );
+        imageComponent1.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                imageComponent1MouseClicked(evt);
+            }
+        });
+        jPanel2.add(imageComponent1, java.awt.BorderLayout.CENTER);
 
         jPanel1.add(jPanel2);
 
         jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 2"));
+        jPanel3.setLayout(new java.awt.BorderLayout());
+        jPanel3.add(jLabel2, java.awt.BorderLayout.NORTH);
 
-        javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
-        jPanel3.setLayout(jPanel3Layout);
-        jPanel3Layout.setHorizontalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
-            .addComponent(imageComponent2, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel3Layout.setVerticalGroup(
-            jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel3Layout.createSequentialGroup()
-                .addComponent(jLabel2)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(imageComponent2, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
-        );
+        imageComponent2.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                imageComponent2MouseClicked(evt);
+            }
+        });
+        jPanel3.add(imageComponent2, java.awt.BorderLayout.CENTER);
 
         jPanel1.add(jPanel3);
 
         jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 3"));
+        jPanel4.setLayout(new java.awt.BorderLayout());
+        jPanel4.add(jLabel3, java.awt.BorderLayout.NORTH);
 
-        javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
-        jPanel4.setLayout(jPanel4Layout);
-        jPanel4Layout.setHorizontalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
-            .addComponent(imageComponent3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel4Layout.setVerticalGroup(
-            jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel4Layout.createSequentialGroup()
-                .addComponent(jLabel3)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(imageComponent3, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
-        );
+        imageComponent3.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseClicked(java.awt.event.MouseEvent evt) {
+                imageComponent3MouseClicked(evt);
+            }
+        });
+        jPanel4.add(imageComponent3, java.awt.BorderLayout.CENTER);
 
         jPanel1.add(jPanel4);
 
         jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 4"));
+        jPanel5.setLayout(new java.awt.BorderLayout());
+        jPanel5.add(jLabel4, java.awt.BorderLayout.NORTH);
 
         imageComponent4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
                 imageComponent4MouseClicked(evt);
             }
         });
-
-        javax.swing.GroupLayout jPanel5Layout = new javax.swing.GroupLayout(jPanel5);
-        jPanel5.setLayout(jPanel5Layout);
-        jPanel5Layout.setHorizontalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addComponent(jLabel4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, 248, Short.MAX_VALUE)
-            .addComponent(imageComponent4, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-        );
-        jPanel5Layout.setVerticalGroup(
-            jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel5Layout.createSequentialGroup()
-                .addComponent(jLabel4)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(imageComponent4, javax.swing.GroupLayout.DEFAULT_SIZE, 198, Short.MAX_VALUE))
-        );
+        jPanel5.add(imageComponent4, java.awt.BorderLayout.CENTER);
 
         jPanel1.add(jPanel5);
 
@@ -179,15 +150,38 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_displayComboBoxActionPerformed
 
     private void imageComponent4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent4MouseClicked
+        imageComponentMouseClicked(evt, 3);
+    }//GEN-LAST:event_imageComponent4MouseClicked
+
+    private void imageComponent3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent3MouseClicked
+        imageComponentMouseClicked(evt, 2);
+    }//GEN-LAST:event_imageComponent3MouseClicked
+
+    private void imageComponent2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent2MouseClicked
+        imageComponentMouseClicked(evt, 1);
+    }//GEN-LAST:event_imageComponent2MouseClicked
+
+    private void imageComponent1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent1MouseClicked
+        imageComponentMouseClicked(evt, 0);
+    }//GEN-LAST:event_imageComponent1MouseClicked
+
+    private void imageComponentMouseClicked(java.awt.event.MouseEvent evt, int position) {
         if (evt.getClickCount() == 2) {
-            Container parent = evt.getComponent().getParent();
-            parent.getParent().remove(parent);
-            this.getContentPane().remove(jPanel1);
-            this.getContentPane().add(parent,BorderLayout.CENTER);
-            this.getContentPane().validate();
+            Container imagePanel = evt.getComponent().getParent();
+            final Container contentPane = this.getContentPane();
+            if (imagePanel.getParent() == contentPane) {
+                contentPane.remove(imagePanel);
+                contentPane.add(jPanel1, BorderLayout.CENTER);
+                jPanel1.add(imagePanel, position);
+            } else {
+                jPanel1.remove(imagePanel);
+                contentPane.remove(jPanel1);
+                contentPane.add(imagePanel, BorderLayout.CENTER);
+            }
+            contentPane.validate();
             this.repaint();
         }
-    }//GEN-LAST:event_imageComponent4MouseClicked
+    }
 
     /**
      * @param args the command line arguments
@@ -233,6 +227,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel3;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JPanel jPanel1;
+    private javax.swing.JPanel jPanel5;
     // End of variables declaration//GEN-END:variables
 
 }
