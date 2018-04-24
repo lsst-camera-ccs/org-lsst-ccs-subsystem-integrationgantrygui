@@ -1,6 +1,5 @@
 package org.lsst.ccs.integrationgantrygui;
 
-import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.file.Files;
@@ -59,7 +58,7 @@ public class Main {
                 for (;;) {
                     try {
                         Path path = queue.take();
-                        BufferedImage image = FitsFast4.readFits(path.toFile());
+                        ScalableBufferedImage image = FitsFast4.readFits(path.toFile());
                         frame.setImage(index, image);
                         count.getAndIncrement();
                     } catch (InterruptedException | IOException | TruncatedFileException | BufferUnderflowException ex) {

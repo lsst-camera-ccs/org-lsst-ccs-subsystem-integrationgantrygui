@@ -1,9 +1,8 @@
 package org.lsst.ccs.integrationgantrygui;
 
+import java.awt.Image;
 import java.awt.Point;
-import java.awt.image.BufferedImage;
 import java.awt.image.DataBuffer;
-import java.awt.image.IndexColorModel;
 import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 import java.io.File;
@@ -21,7 +20,7 @@ import nom.tam.util.BufferedFile;
  */
 public class FitsFast4 {
 
-    static BufferedImage readFits(File in) throws IOException, TruncatedFileException {
+    static ScalableBufferedImage readFits(File in) throws IOException, TruncatedFileException {
         try (BufferedFile file = new BufferedFile(in)) {
             Header header = new Header(file);
             long size = header.getDataSize();
@@ -69,13 +68,7 @@ public class FitsFast4 {
             stop = System.currentTimeMillis();
             //System.out.printf("Write image of type %d size %dx%d range %d-%d in %dms\n", bitpix, nAxis1, nAxis2, min, max, stop - start);
 
-            // Rescale
-            byte[] log = new byte[max];
-            for (int i=0; i<max-min; i++) {
-                log[min+i] = (byte) (Math.log(i+1) * 255 / Math.log(max-min));
-            }
-            IndexColorModel cm2 = new IndexColorModel(8, max, log, log, log);
-            return  new BufferedImage(cm2, raster, false, null);
+            return new ScalableBufferedImage(min, max, raster);
         }
     }
 }

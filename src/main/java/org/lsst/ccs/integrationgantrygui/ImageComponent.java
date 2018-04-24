@@ -2,7 +2,6 @@ package org.lsst.ccs.integrationgantrygui;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
-import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
 /**
@@ -12,37 +11,24 @@ import javax.swing.JComponent;
  */
 public class ImageComponent extends JComponent {
 
-    private BufferedImage image;
+    private ScalableBufferedImage image;
 
     public ImageComponent() {
         image = null;
     }
 
-    public ImageComponent(BufferedImage image) {
+    ImageComponent(ScalableBufferedImage image) {
         setImage(image);
     }
 
-    final void setImage(BufferedImage image) {
-//        if (image.getType() != BufferedImage.TYPE_USHORT_GRAY) {
-//            convertImage(image);
-//        } else {
-            this.image = image;
-//        }
+    final void setImage(ScalableBufferedImage image) {
+
+        this.image = image;
         repaint();
     }
 
-    public BufferedImage getImage() {
+    ScalableBufferedImage getImage() {
         return image;
-    }
-
-    private void convertImage(BufferedImage image1) {
-        long start = System.currentTimeMillis();
-        this.image = new BufferedImage(image1.getWidth(), image1.getHeight(), BufferedImage.TYPE_USHORT_GRAY);
-        Graphics g = this.image.getGraphics();
-        g.drawImage(image1, 0, 0, null);
-        g.dispose();
-        long stop = System.currentTimeMillis();
-        System.out.printf("Coversion from %d took %dms\n", image1.getType(), stop - start);
     }
 
     @Override
@@ -50,7 +36,7 @@ public class ImageComponent extends JComponent {
         if (image != null) {
             Graphics2D g2 = (Graphics2D) g;
             g2.scale(1, -1);
-            g2.translate(0,-getHeight());
+            g2.translate(0, -getHeight());
             long start = System.currentTimeMillis();
             g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
             long stop = System.currentTimeMillis();

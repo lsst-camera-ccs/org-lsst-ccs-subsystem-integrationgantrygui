@@ -2,9 +2,8 @@ package org.lsst.ccs.integrationgantrygui;
 
 import java.awt.BorderLayout;
 import java.awt.Container;
-import java.awt.image.BufferedImage;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 
 /**
  *
@@ -22,11 +21,14 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
      */
     public IntegrationGantryFrame() {
         initComponents();
+        displayComboBox.setModel(new DefaultComboBoxModel(ScalableBufferedImage.Scaling.values()));
+        displayComboBox.setSelectedItem(ScalableBufferedImage.Scaling.LOG);
         imageComponents = new ImageComponent[]{imageComponent1, imageComponent2, imageComponent3, imageComponent4};
         labels = new JLabel[]{jLabel1, jLabel2, jLabel3, jLabel4};
     }
 
-    void setImage(int i, BufferedImage image) {
+    void setImage(int i, ScalableBufferedImage image) {
+        image.setScaling((ScalableBufferedImage.Scaling) displayComboBox.getSelectedItem());
         imageComponents[i].setImage(image);
     }
 
