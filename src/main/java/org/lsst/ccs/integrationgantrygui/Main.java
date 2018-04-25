@@ -28,8 +28,9 @@ import nom.tam.fits.TruncatedFileException;
 public class Main {
 
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
-    private final Path watchDir = Paths.get("/home/tonyj/Data/watch");
+    private final Path watchDir = Paths.get("/home/ccs/arasmus/mvIMPACT_acquire");
     private final Map<String, Integer> cameraMap = new HashMap<>();
+    private final Map<String, Integer> cameraMap2 = new HashMap<>();
     private int i = 0;
     private int j = 0;
     private final AtomicInteger count = new AtomicInteger();
@@ -39,6 +40,11 @@ public class Main {
         cameraMap.put("BF3", 1);
         cameraMap.put("BF0", 2);
         cameraMap.put("BF1", 3);
+
+        cameraMap2.put("gaps_2", 0);
+        cameraMap2.put("gaps_3", 1);
+        cameraMap2.put("gaps_0", 2);
+        cameraMap2.put("gaps_1", 3);
     }
 
     private void start() throws IOException, InterruptedException {
@@ -83,13 +89,16 @@ public class Main {
         workQueue.execute(runnable);
 
         try (WatchService watchService = watchDir.getFileSystem().newWatchService()) {
-            watchDir.register(watchService, StandardWatchEventKinds.ENTRY_MODIFY);
+            watchDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
             for (;;) {
                 WatchKey take = watchService.take();
                 take.pollEvents().stream().map((event) -> (Path) event.context()).forEach((path) -> {
                     Path fullPath = watchDir.resolve(path);
                     String fileName = fullPath.getFileName().toString();
                     Integer index = cameraMap.get(fullPath.getFileName().toString().substring(0, 3));
+                    if (index == null) {
+                        index = cameraMap2.get(fullPath.getFileName().toString().substring(0, 6));
+                    }
                     if (index != null) {
                         if (fileName.endsWith(".fits")) {
                             if (fullPath.toFile().length() == 5_071_680 || fullPath.toFile().length() == 10_137_600) {
@@ -110,8 +119,9 @@ public class Main {
                             try {
                                 List<String> text = Files.readAllLines(fullPath);
                                 if (!text.isEmpty()) {
+                                    int findex = index;
                                     SwingUtilities.invokeLater(() -> {
-                                        frame.setLabel(index, text.get(0));
+                                        frame.setLabel(findex, text.get(0));
                                     });
                                 }
                             } catch (IOException ex) {
