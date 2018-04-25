@@ -28,6 +28,7 @@ class ScalableBufferedImage extends BufferedImage {
     private final int min;
     private final int max;
     private final WritableRaster data;
+    private final int bitpix;
 
     public enum Scaling {
         LINEAR, LOG
@@ -35,39 +36,39 @@ class ScalableBufferedImage extends BufferedImage {
     Scaling scaling = Scaling.LOG;
     BufferedImage delegate;
 
-    ScalableBufferedImage(int min, int max, WritableRaster raster) {
+    ScalableBufferedImage(int min, int max, int bitpix, WritableRaster raster) {
         super(raster.getWidth(), raster.getHeight(), BufferedImage.TYPE_USHORT_GRAY);
         this.min = min;
         this.max = max;
+        this.bitpix = bitpix;
         this.data = raster;
-        delegate = new BufferedImage(buildColorModel(min, max), raster, false, null);
+        delegate = new BufferedImage(buildColorModel(min, max, bitpix), raster, false, null);
     }
 
-    final IndexColorModel buildColorModel(int min, int max) {
+    final IndexColorModel buildColorModel(int min, int max, int bitpix) {
         switch (scaling) {
             case LOG:
                 byte[] log = new byte[max];
                 for (int i = 0; i < max - min; i++) {
                     log[min + i] = (byte) (Math.log(i + 1) * 255 / Math.log(max - min));
                 }
-                return new IndexColorModel(8, max, log, log, log);
-                
+                return new IndexColorModel(bitpix, max, log, log, log);
+
             case LINEAR:
                 byte[] lin = new byte[max];
                 for (int i = 0; i < max - min; i++) {
-                    lin[min + i] = (byte) (i * 255 /(max - min));
+                    lin[min + i] = (byte) (i * 255 / (max - min));
                 }
-                return new IndexColorModel(8, max, lin, lin, lin);       
+                return new IndexColorModel(bitpix, max, lin, lin, lin);
             default:
                 throw new IllegalArgumentException("Unknown scaling");
         }
-
     }
 
     void setScaling(Scaling scaling) {
         if (this.scaling != scaling) {
-           this.scaling = scaling;
-           delegate = new BufferedImage(buildColorModel(min, max), data, false, null);
+            this.scaling = scaling;
+            delegate = new BufferedImage(buildColorModel(min, max, bitpix), data, false, null);
         }
     }
 

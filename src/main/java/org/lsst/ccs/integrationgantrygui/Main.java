@@ -92,7 +92,7 @@ public class Main {
                     Integer index = cameraMap.get(fullPath.getFileName().toString().substring(0, 3));
                     if (index != null) {
                         if (fileName.endsWith(".fits")) {
-                            if (fullPath.toFile().length() == 5_071_680) {
+                            if (fullPath.toFile().length() == 5_071_680 || fullPath.toFile().length() == 10_137_600) {
 
                                 LinkedBlockingQueue<Path> queue = queues[index];
                                 Path poll = queue.poll(); // Discard any files not yet processed

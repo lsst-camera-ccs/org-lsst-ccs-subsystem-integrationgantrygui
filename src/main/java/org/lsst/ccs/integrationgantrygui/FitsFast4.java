@@ -1,6 +1,5 @@
 package org.lsst.ccs.integrationgantrygui;
 
-import java.awt.Image;
 import java.awt.Point;
 import java.awt.image.DataBuffer;
 import java.awt.image.Raster;
@@ -48,15 +47,21 @@ public class FitsFast4 {
             //System.out.println(bb.remaining());
             //System.out.printf("Read image of type %d size %dx%d in %dms\n", bitpix, nAxis1, nAxis2, stop - start);
 
-            WritableRaster raster = Raster.createInterleavedRaster(DataBuffer.TYPE_BYTE, nAxis1, nAxis2, 1, new Point(0,0));
+            WritableRaster raster = Raster.createInterleavedRaster(bitpix==8 ? DataBuffer.TYPE_BYTE : DataBuffer.TYPE_USHORT, nAxis1, nAxis2, 1, new Point(0,0));
             DataBuffer db = raster.getDataBuffer();
             start = System.currentTimeMillis();
 
             int min = Integer.MAX_VALUE;
             int max = Integer.MIN_VALUE;
             for (int i = 0; i < imageSize; i++) {
-                int pixel = bb.get();
-                if (pixel<0) pixel += 256;
+                int pixel;
+                if (bitpix == 8) {
+                   pixel = bb.get();
+                   if (pixel<0) pixel += 256;
+                } else {
+                   pixel = bb.getShort();
+                   if (pixel<0) pixel += 65536;                    
+                }
                 if (pixel > max) {
                     max = pixel;
                 }
@@ -68,7 +73,7 @@ public class FitsFast4 {
             stop = System.currentTimeMillis();
             //System.out.printf("Write image of type %d size %dx%d range %d-%d in %dms\n", bitpix, nAxis1, nAxis2, min, max, stop - start);
 
-            return new ScalableBufferedImage(min, max, raster);
+            return new ScalableBufferedImage(min, max, bitpix, raster);
         }
     }
 }
