@@ -21,15 +21,14 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
      */
     public IntegrationGantryFrame() {
         initComponents();
-        displayComboBox.setModel(new DefaultComboBoxModel(ScalableBufferedImage.Scaling.values()));
-        displayComboBox.setSelectedItem(ScalableBufferedImage.Scaling.LOG);
+        displayComboBox.setModel(new DefaultComboBoxModel(ScalableImageProvider.Scaling.values()));
+        displayComboBox.setSelectedItem(ScalableImageProvider.Scaling.LOG);
         imageComponents = new ImageComponent[]{imageComponent1, imageComponent2, imageComponent3, imageComponent4};
         labels = new JLabel[]{jLabel1, jLabel2, jLabel3, jLabel4};
     }
 
-    void setImage(int i, ScalableBufferedImage image) {
-        image.setScaling((ScalableBufferedImage.Scaling) displayComboBox.getSelectedItem());
-        imageComponents[i].setImage(image);
+    void setImage(int i, ScalableImageProvider image) {
+        imageComponents[i].setImage(image.createScaledImage(ScalableImageProvider.Scaling.LOG));
     }
 
     void setLabel(int i, String text) {

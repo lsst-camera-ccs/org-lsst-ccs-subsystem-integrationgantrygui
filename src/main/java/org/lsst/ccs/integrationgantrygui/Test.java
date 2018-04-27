@@ -23,7 +23,7 @@ import java.util.stream.Stream;
  */
 public class Test {
     private static final Logger LOG = Logger.getLogger(Test.class.getName());
-    private static DateFormat df = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss");
+    private static final DateFormat df = new SimpleDateFormat("yyyy-MMM-dd hh:mm:ss");
 
     @SuppressWarnings("SleepWhileInLoop")
     public static void main(String[] args) throws IOException {

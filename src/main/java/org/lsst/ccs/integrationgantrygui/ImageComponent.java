@@ -2,6 +2,7 @@ package org.lsst.ccs.integrationgantrygui;
 
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.image.BufferedImage;
 import javax.swing.JComponent;
 
 /**
@@ -11,23 +12,23 @@ import javax.swing.JComponent;
  */
 public class ImageComponent extends JComponent {
 
-    private ScalableBufferedImage image;
+    private BufferedImage image;
 
     public ImageComponent() {
         image = null;
     }
 
-    ImageComponent(ScalableBufferedImage image) {
+    ImageComponent(BufferedImage image) {
         setImage(image);
     }
 
-    final void setImage(ScalableBufferedImage image) {
+    final void setImage(BufferedImage image) {
 
         this.image = image;
         repaint();
     }
 
-    ScalableBufferedImage getImage() {
+    BufferedImage getImage() {
         return image;
     }
 
@@ -40,7 +41,7 @@ public class ImageComponent extends JComponent {
             long start = System.currentTimeMillis();
             g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
             long stop = System.currentTimeMillis();
-            //System.out.printf("Paint image of type %d and size %dx%d took %dms\n", image.getType(), image.getWidth(), image.getHeight(), stop - start);
+            System.out.printf("Paint image of type %d and size %dx%d took %dms\n", image.getType(), image.getWidth(), image.getHeight(), stop - start);
         }
     }
 }

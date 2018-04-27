@@ -64,7 +64,7 @@ public class Main {
                 for (;;) {
                     try {
                         Path path = queue.take();
-                        ScalableBufferedImage image = FitsFast4.readFits(path.toFile());
+                        ScalableImageProvider image = FitsFast4.readFits(path.toFile());
                         frame.setImage(index, image);
                         count.getAndIncrement();
                     } catch (InterruptedException | IOException | TruncatedFileException | BufferUnderflowException ex) {
@@ -89,7 +89,7 @@ public class Main {
         workQueue.execute(runnable);
 
         try (WatchService watchService = watchDir.getFileSystem().newWatchService()) {
-            watchDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE);
+            watchDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
             for (;;) {
                 WatchKey take = watchService.take();
                 take.pollEvents().stream().map((event) -> (Path) event.context()).forEach((path) -> {

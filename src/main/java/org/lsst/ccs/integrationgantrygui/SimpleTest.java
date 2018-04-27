@@ -1,9 +1,13 @@
 package org.lsst.ccs.integrationgantrygui;
 
+import java.awt.BorderLayout;
 import java.awt.Dimension;
+import java.awt.event.ActionEvent;
 import java.io.File;
 import java.io.IOException;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
+import javax.swing.JPanel;
 import nom.tam.fits.TruncatedFileException;
 
 /**
@@ -12,11 +16,20 @@ import nom.tam.fits.TruncatedFileException;
  */
 public class SimpleTest {
     public static void main(String args[]) throws IOException, TruncatedFileException {
+        //File file = new File("/home/tonyj/Data/arasmus/BF1_rng0016_200000.fits");
         File file = new File("/home/tonyj/Data/BF3_rng0015_100000.fits");
-        ScalableBufferedImage sbi = FitsFast4.readFits(file);
-        ImageComponent ic = new ImageComponent(sbi);
+        ScalableImageProvider sbi = FitsFast4.readFits(file);
+        JPanel content = new JPanel(new BorderLayout());
+        ImageComponent ic = new ImageComponent(sbi.createScaledImage(ScalableImageProvider.Scaling.LOG));
+        content.add(ic,BorderLayout.CENTER);
+        JComboBox<ScalableImageProvider.Scaling> scaleCombo = new JComboBox<>(ScalableImageProvider.Scaling.values());
+        scaleCombo.setSelectedItem(ScalableImageProvider.Scaling.LOG);
+        scaleCombo.addActionListener((ActionEvent e) -> {
+            ic.setImage(sbi.createScaledImage(scaleCombo.getItemAt(scaleCombo.getSelectedIndex())));
+        });
+        content.add(scaleCombo,BorderLayout.SOUTH);
         JFrame frame = new JFrame();
-        frame.setContentPane(ic);
+        frame.setContentPane(content);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setSize(new Dimension(600,600));
         frame.setVisible(true);
