@@ -67,7 +67,7 @@ public class FitsFast4 {
             }
             stop = System.currentTimeMillis();
             System.out.printf("Write image of type %d size %dx%d in %dms\n", bitpix, nAxis1, nAxis2, stop - start);
-            return new ScalableImageProvider(bitpix, bZero, bScale, counts, raster);
+            return new LookupScalableImageProvider(bitpix, bZero, bScale, counts, raster);
         }
     }
 }
