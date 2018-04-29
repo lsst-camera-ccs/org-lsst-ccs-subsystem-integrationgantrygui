@@ -16,25 +16,22 @@ import java.awt.image.WritableRaster;
  */
 class LookupScalableImageProvider extends ScalableImageProvider {
 
-    private final ComponentColorModel cm;
-    private final WritableRaster scaledRaster;
+    private final BufferedImage rawImage;
 
     LookupScalableImageProvider(int bitpix, int bZero, int bScale, int[] counts, WritableRaster rawRaster) {
         super(bitpix, bZero, bScale, counts, rawRaster);
-        cm = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_GRAY),
+        ComponentColorModel cm = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_GRAY),
                 false, false, Transparency.OPAQUE,
                 rawRaster.getTransferType());
-        scaledRaster = rawRaster.createCompatibleWritableRaster();
+        rawImage = new BufferedImage(cm, rawRaster, false, null);
     }
 
     @Override
     BufferedImage createScaledImage(Scaling scaling) {
-        long start = System.currentTimeMillis();
-        LookupOp op = new LookupOp(createLookupTable(scaling), null);
-        WritableRaster raster = op.filter(rawRaster, scaledRaster);
-        long stop = System.currentTimeMillis();
-        System.out.printf("Scaling took %dms\n",stop-start);
-        return new BufferedImage(cm, raster, false, null);
+        return Timed.execute(() -> {        
+                LookupOp op = new LookupOp(createLookupTable(scaling), null);
+                return op.filter(rawImage, null);
+       }, "Scaling took %dms");
     }
 
     private ShortLookupTable createLookupTable(Scaling scaling) {

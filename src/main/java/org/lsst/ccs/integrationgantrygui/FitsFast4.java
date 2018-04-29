@@ -32,41 +32,41 @@ public class FitsFast4 {
             ByteBuffer bb = ByteBuffer.allocateDirect(nAxis1 * nAxis2 * bitpix / 8);
             FileChannel channel = file.getChannel();
             channel.position(file.getFilePointer());
-            long start = System.currentTimeMillis();
-            while (bb.hasRemaining()) {
-                int l = channel.read(bb);
-                if (l < 0) {
-                    break;
-                }
-            }
-            long stop = System.currentTimeMillis();
+            Timed.execute(() -> {
 
+                while (bb.hasRemaining()) {
+                    int l = channel.read(bb);
+                    if (l < 0) {
+                        break;
+                    }
+                }
+                return null;
+            }, "Read image of type %d size %dx%d in %dms", bitpix, nAxis1, nAxis2);
             bb.flip();
-            System.out.printf("Read image of type %d size %dx%d in %dms\n", bitpix, nAxis1, nAxis2, stop - start);
 
-            WritableRaster raster = Raster.createInterleavedRaster(bitpix==8 ? DataBuffer.TYPE_BYTE : DataBuffer.TYPE_USHORT, nAxis1, nAxis2, 1, new Point(0,0));
+            WritableRaster raster = Raster.createInterleavedRaster(bitpix == 8 ? DataBuffer.TYPE_BYTE : DataBuffer.TYPE_USHORT, nAxis1, nAxis2, 1, new Point(0, 0));
             DataBuffer db = raster.getDataBuffer();
-            start = System.currentTimeMillis();
 
-            int[] counts;
-            if (bitpix == 8) {
-                counts = new int[256];
-                for (int i=0; i < imageSize; i++) {
-                   int pixel = bb.get() & 0xff;
-                   counts[pixel]++;
-                   db.setElem(i, pixel);
+            int[] counts = Timed.execute(() -> {
+                if (bitpix == 8) {
+                    int[] result = new int[256];
+                    for (int i = 0; i < imageSize; i++) {
+                        int pixel = bb.get() & 0xff;
+                        result[pixel]++;
+                        db.setElem(i, pixel);
+                    }
+                    return result;
+                } else {
+                    int[] result = new int[65536];
+                    for (int i = 0; i < imageSize; i++) {
+                        int pixel = bb.getShort() & 0xffff;
+                        result[pixel]++;
+                        db.setElem(i, pixel);
+                    }
+                    return result;
                 }
-            } else {
-                counts = new int[65536];
-                for (int i=0; i < imageSize; i++) {
-                   int pixel = bb.getShort() & 0xffff;
-                   counts[pixel]++;
-                   db.setElem(i, pixel);
-                }
-                 
-            }
-            stop = System.currentTimeMillis();
-            System.out.printf("Write image of type %d size %dx%d in %dms\n", bitpix, nAxis1, nAxis2, stop - start);
+            }, "Write image of type %d size %dx%d in %dms", bitpix, nAxis1, nAxis2);
+
             return new LookupScalableImageProvider(bitpix, bZero, bScale, counts, raster);
         }
     }

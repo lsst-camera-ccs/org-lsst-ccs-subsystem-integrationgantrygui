@@ -15,23 +15,24 @@ import nom.tam.fits.TruncatedFileException;
  * @author tonyj
  */
 public class SimpleTest {
+
     public static void main(String args[]) throws IOException, TruncatedFileException {
         //File file = new File("/home/tonyj/Data/arasmus/BF1_rng0016_200000.fits");
-        File file = new File("/home/tonyj/Data/BF3_rng0015_100000.fits");
+        File file = new File("/home/tonyj/Data/BF3_rng0098_200000.fits");
         ScalableImageProvider sbi = FitsFast4.readFits(file);
         JPanel content = new JPanel(new BorderLayout());
         ImageComponent ic = new ImageComponent(sbi.createScaledImage(ScalableImageProvider.Scaling.LOG));
-        content.add(ic,BorderLayout.CENTER);
+        content.add(ic, BorderLayout.CENTER);
         JComboBox<ScalableImageProvider.Scaling> scaleCombo = new JComboBox<>(ScalableImageProvider.Scaling.values());
         scaleCombo.setSelectedItem(ScalableImageProvider.Scaling.LOG);
         scaleCombo.addActionListener((ActionEvent e) -> {
             ic.setImage(sbi.createScaledImage(scaleCombo.getItemAt(scaleCombo.getSelectedIndex())));
         });
-        content.add(scaleCombo,BorderLayout.SOUTH);
+        content.add(scaleCombo, BorderLayout.SOUTH);
         JFrame frame = new JFrame();
         frame.setContentPane(content);
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(new Dimension(600,600));
+        frame.setSize(new Dimension(600, 600));
         frame.setVisible(true);
     }
 }

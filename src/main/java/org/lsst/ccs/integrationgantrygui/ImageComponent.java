@@ -12,6 +12,8 @@ import javax.swing.JComponent;
  */
 public class ImageComponent extends JComponent {
 
+    private static final long serialVersionUID = 1L;
+
     private BufferedImage image;
 
     public ImageComponent() {
@@ -38,10 +40,10 @@ public class ImageComponent extends JComponent {
             Graphics2D g2 = (Graphics2D) g;
             g2.scale(1, -1);
             g2.translate(0, -getHeight());
-            long start = System.currentTimeMillis();
-            g.drawImage(image, 0, 0, getWidth(), getHeight(), this);
-            long stop = System.currentTimeMillis();
-            System.out.printf("Paint image of type %d and size %dx%d took %dms\n", image.getType(), image.getWidth(), image.getHeight(), stop - start);
+            Timed.execute(
+                    () -> g.drawImage(image, 0, 0, getWidth(), getHeight(), ImageComponent.this),
+                    "Paint image of type %d and size %dx%d took %dms", image.getType(), image.getWidth(), image.getHeight()
+            );
         }
     }
 }
