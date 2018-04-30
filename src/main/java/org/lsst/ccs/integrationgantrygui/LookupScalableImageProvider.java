@@ -37,7 +37,8 @@ class LookupScalableImageProvider extends ScalableImageProvider<short[]> {
 
     private ShortLookupTable createLookupTable(Scaling scaling) {
         ScalingUtils<short[]> scalingUtils = getScalingUtils();
-        short[] data = scalingUtils.buildArray(scaling);
-        return new ShortLookupTable(0, data);
+        int min = scalingUtils.getMin();
+        short[] data = scalingUtils.buildArray(min, scaling);
+        return new ShortLookupTable(min, data);
     }
 }

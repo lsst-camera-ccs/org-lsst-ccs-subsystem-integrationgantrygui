@@ -19,16 +19,15 @@ public class ScalingUtilsTest {
         ByteScalingUtils utils = new ByteScalingUtils(counts);
         assertEquals(3, utils.getMin());
         assertEquals(21, utils.getMax());
-        byte[] buildArray = utils.buildArray(ScalableImageProvider.Scaling.LINEAR);
-        int sum = 0;
-        int n = 0;
-        for (int i = utils.getMin(); i <= utils.getMax(); i++) {
-            sum += buildArray[i] & 0xff;
-            n++;
-        }
-        assertEquals(128, sum / n, 1.0);
+        
+        byte[] buildArray = utils.buildArray(0, ScalableImageProvider.Scaling.LINEAR);
+        assertEquals(128, mean(buildArray,utils.getMin(),utils.getMax()), 1.0);
 
-        buildArray = utils.buildArray(ScalableImageProvider.Scaling.LOG);
+        buildArray = utils.buildArray(0, ScalableImageProvider.Scaling.LOG);
+        assertEquals(179, mean(buildArray,utils.getMin(),utils.getMax()), 1.0);
+
+        buildArray = utils.buildArray(0, ScalableImageProvider.Scaling.HIST);
+        assertEquals(132.6, mean(buildArray,utils.getMin(),utils.getMax()), 1.0);
     }
 
     @Test
@@ -36,14 +35,34 @@ public class ScalingUtilsTest {
         ShortScalingUtils utils = new ShortScalingUtils(counts);
         assertEquals(3, utils.getMin());
         assertEquals(21, utils.getMax());
-        short[] buildArray = utils.buildArray(ScalableImageProvider.Scaling.LINEAR);
-        int sum = 0;
-        int n = 0;
-        for (int i = utils.getMin(); i <= utils.getMax(); i++) {
-            sum += buildArray[i] & 0xffff;
-            n++;
-        }
-        assertEquals(128 * 256, sum / n, 1.0 * 256);
-    }
+        
+        short[] buildArray = utils.buildArray(0, ScalableImageProvider.Scaling.LINEAR);
+        assertEquals(128*256, mean(buildArray,utils.getMin(),utils.getMax()), 1.0);
 
+        buildArray = utils.buildArray(0, ScalableImageProvider.Scaling.LOG);
+        assertEquals(46083, mean(buildArray,utils.getMin(),utils.getMax()), 256.0);
+
+        buildArray = utils.buildArray(0, ScalableImageProvider.Scaling.HIST);
+        assertEquals(132.6*256, mean(buildArray,utils.getMin(),utils.getMax()), 256.0);
+    }
+    
+    double mean(byte[] array, int first, int last) {
+        double sum = 0;
+        int n = 0;
+        for (int i=first; i<=last; i++) {
+           sum += array[i] & 0xff;
+           n++;
+        }
+        return sum/n;
+    }
+    
+    double mean(short[] array, int first, int last) {
+        double sum = 0;
+        int n = 0;
+        for (int i=first; i<=last; i++) {
+           sum += array[i] & 0xffff;
+           n++;
+        }
+        return sum/n;
+    }
 }

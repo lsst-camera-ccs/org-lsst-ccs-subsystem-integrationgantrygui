@@ -23,7 +23,7 @@ class IndexedScalableImageProvider extends ScalableImageProvider<byte[]> {
 
     final IndexColorModel buildColorModel(Scaling scaling) {
         ScalingUtils<byte[]> utils = getScalingUtils();
-        byte[] data = utils.buildArray(scaling);
+        byte[] data = utils.buildArray(0, scaling);
         return new IndexColorModel(getBitpix(), utils.getMax(), data, data, data);
     }
 }

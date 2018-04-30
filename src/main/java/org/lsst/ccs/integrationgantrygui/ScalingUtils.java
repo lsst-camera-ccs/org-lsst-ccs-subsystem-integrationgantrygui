@@ -46,21 +46,21 @@ public abstract class ScalingUtils<T> {
         return cdf;
     }
 
-    T buildArray(T data, double maxValue, ScalableImageProvider.Scaling scaling) {
+    T buildArray(T data, int offset, double maxValue, ScalableImageProvider.Scaling scaling) {
 
         switch (scaling) {
 
             case LOG:
-                double logScaleFactor = maxValue / Math.log(max - min + 1);
+                double logScaleFactor = maxValue / Math.log1p(max - min);
                 for (int i = 0; i < max - min + 1; i++) {
-                    setElement(data, min + i, i == 0 ? 0 : Math.log(i + 1) * logScaleFactor);
+                    setElement(data, min + i - offset, Math.log1p(i) * logScaleFactor);
                 }
                 break;
 
             case LINEAR:
                 double linearScaleFactor = maxValue / (max - min);
                 for (int i = 0; i < max - min + 1; i++) {
-                    setElement(data, min + i, i * linearScaleFactor);
+                    setElement(data, min + i - offset, i * linearScaleFactor);
                 }
                 break;
 
@@ -69,7 +69,7 @@ public abstract class ScalingUtils<T> {
                 int range = cdf[max] - cdf[min];
 
                 for (int i = 0; i < max - min + 1; i++) {
-                    setElement(data, min + i, (cdf[min + i] - cdf[min]) * maxValue / range);
+                    setElement(data, min + i - offset, (cdf[min + i] - cdf[min]) * maxValue / range);
                 }
                 break;
 
@@ -87,7 +87,7 @@ public abstract class ScalingUtils<T> {
         return min;
     }
 
-    abstract T buildArray(ScalableImageProvider.Scaling scaling);
+    abstract T buildArray(int offset, ScalableImageProvider.Scaling scaling);
 
     abstract void setElement(T data, int index, double value);
 
@@ -98,12 +98,12 @@ public abstract class ScalingUtils<T> {
         }
 
         @Override
-        byte[] buildArray(ScalableImageProvider.Scaling scaling) {
-            byte[] result = new byte[getMax() + 1];
-            buildArray(result, 255, scaling);
-            for (int i = 0; i < result.length; i++) {
-                System.out.printf("%s[%d] = %d\n", scaling, i, result[i] & 0xff);
-            }
+        byte[] buildArray(int offset, ScalableImageProvider.Scaling scaling) {
+            byte[] result = new byte[getMax() + 1 - offset];
+            buildArray(result, offset, 255, scaling);
+//            for (int i = 0; i < result.length; i++) {
+//                System.out.printf("%s[%d] = %d\n", scaling, i, result[i] & 0xff);
+//            }
             return result;
         }
 
@@ -120,12 +120,12 @@ public abstract class ScalingUtils<T> {
         }
 
         @Override
-        short[] buildArray(ScalableImageProvider.Scaling scaling) {
-            short[] result = new short[getMax() + 1];
-            buildArray(result, 65535, scaling);
-            for (int i = 0; i < result.length; i++) {
-                System.out.printf("%s[%d] = %d\n", scaling, i, result[i] & 0xffff);
-            }
+        short[] buildArray(int offset, ScalableImageProvider.Scaling scaling) {
+            short[] result = new short[getMax() + 1 - offset];
+            buildArray(result, offset, 65535, scaling);
+//            for (int i = 0; i < result.length; i++) {
+//                System.out.printf("%s[%d] = %d\n", scaling, i, result[i] & 0xffff);
+//            }
             return result;
         }
 
