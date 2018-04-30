@@ -67,7 +67,7 @@ public class FitsFast4 {
                 }
             }, "Write image of type %d size %dx%d in %dms", bitpix, nAxis1, nAxis2);
 
-            return new LookupScalableImageProvider(bitpix, bZero, bScale, counts, raster);
+            return new IndexedScalableImageProvider(bitpix, bZero, bScale, counts, raster);
         }
     }
 }

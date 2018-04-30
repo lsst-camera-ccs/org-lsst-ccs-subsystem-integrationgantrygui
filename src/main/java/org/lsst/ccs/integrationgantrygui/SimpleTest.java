@@ -17,8 +17,8 @@ import nom.tam.fits.TruncatedFileException;
 public class SimpleTest {
 
     public static void main(String args[]) throws IOException, TruncatedFileException {
-        //File file = new File("/home/tonyj/Data/arasmus/BF1_rng0016_200000.fits");
-        File file = new File("/home/tonyj/Data/BF3_rng0098_200000.fits");
+        File file = new File("/home/tonyj/Data/arasmus/BF1_rng0016_200000.fits");
+        // File file = new File("/home/tonyj/Data/BF3_rng0098_200000.fits");
         ScalableImageProvider sbi = FitsFast4.readFits(file);
         JPanel content = new JPanel(new BorderLayout());
         ImageComponent ic = new ImageComponent(sbi.createScaledImage(ScalableImageProvider.Scaling.LOG));
