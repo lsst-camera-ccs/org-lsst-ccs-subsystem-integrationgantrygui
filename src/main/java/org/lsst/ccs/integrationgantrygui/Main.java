@@ -64,7 +64,7 @@ public class Main {
                 for (;;) {
                     try {
                         Path path = queue.take();
-                        ScalableImageProvider image = FitsFast4.readFits(path.toFile());
+                        ScalableImageProvider image = FitsFast.readFits(path.toFile());
                         frame.setImage(index, image);
                         count.getAndIncrement();
                     } catch (InterruptedException | IOException | TruncatedFileException | BufferUnderflowException ex) {
