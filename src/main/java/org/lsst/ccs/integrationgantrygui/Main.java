@@ -17,6 +17,8 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.SwingUtilities;
 import nom.tam.fits.TruncatedFileException;
 
@@ -28,23 +30,18 @@ import nom.tam.fits.TruncatedFileException;
 public class Main {
 
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
-    private final Path watchDir = Paths.get("/home/ccs/arasmus/mvIMPACT_acquire");
-    private final Map<String, Integer> cameraMap = new HashMap<>();
-    private final Map<String, Integer> cameraMap2 = new HashMap<>();
+    private final Path watchDir = Paths.get(System.getProperty("watchDir","/mnt/ramdisk"));
+    private final Pattern watchPattern = Pattern.compile(System.getProperty("watchPattern",".+(\\d)_rng\\d+.*"));
+    private final Map<Integer, Integer> cameraMap = new HashMap<>();
     private int i = 0;
     private int j = 0;
     private final AtomicInteger count = new AtomicInteger();
 
     Main() {
-        cameraMap.put("BF2", 0);
-        cameraMap.put("BF3", 1);
-        cameraMap.put("BF0", 2);
-        cameraMap.put("BF1", 3);
-
-        cameraMap2.put("gaps_2", 0);
-        cameraMap2.put("gaps_3", 1);
-        cameraMap2.put("gaps_0", 2);
-        cameraMap2.put("gaps_1", 3);
+        cameraMap.put(2, 0);
+        cameraMap.put(3, 1);
+        cameraMap.put(0, 2);
+        cameraMap.put(1, 3);
     }
 
     private void start() throws IOException, InterruptedException {
@@ -79,7 +76,7 @@ public class Main {
         Runnable runnable = () -> {
             for (;;) {
                 try {
-                    System.out.printf("Frame rate %dfps\n", count.getAndSet(0));
+                    LOG.log(Level.INFO, "Frame rate {0} fps", count.getAndSet(0));
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     LOG.log(Level.SEVERE, "Exception in timer thread", ex);
@@ -95,11 +92,9 @@ public class Main {
                 take.pollEvents().stream().map((event) -> (Path) event.context()).forEach((path) -> {
                     Path fullPath = watchDir.resolve(path);
                     String fileName = fullPath.getFileName().toString();
-                    Integer index = cameraMap.get(fullPath.getFileName().toString().substring(0, 3));
-                    if (index == null) {
-                        index = cameraMap2.get(fullPath.getFileName().toString().substring(0, 6));
-                    }
-                    if (index != null) {
+                    Matcher matcher = watchPattern.matcher(fileName);
+                    if (matcher.matches()) {
+                        int index = Integer.parseInt(matcher.group(1));
                         if (fileName.endsWith(".fits")) {
                             if (fullPath.toFile().length() == 5_071_680 || fullPath.toFile().length() == 10_137_600) {
 
@@ -111,7 +106,7 @@ public class Main {
                                 queue.add(watchDir.resolve(path));
                                 i++;
                                 if (i % 100 == 0) {
-                                    System.out.printf("%d%% of files were processed\n", j);
+                                    LOG.log(Level.FINE,"{0}% of files were processed\n", j);
                                     j = 0;
                                 }
                             }

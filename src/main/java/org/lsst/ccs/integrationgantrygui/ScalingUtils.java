@@ -33,7 +33,7 @@ public abstract class ScalingUtils<T> {
                 break;
             }
         }
-        LOG.info(() -> String.format("min=%d max=%d", min, max));
+        LOG.fine(() -> String.format("min=%d max=%d", min, max));
     }
 
     private int[] computeCDF() {

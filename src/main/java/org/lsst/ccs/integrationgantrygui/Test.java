@@ -28,12 +28,12 @@ public class Test {
     @SuppressWarnings("SleepWhileInLoop")
     public static void main(String[] args) throws IOException {
         
-        Path source = Paths.get("/home/tonyj/Data/arasmus/");
-        Pattern pattern = Pattern.compile("BF._rng.*");    
-        Path dest = Paths.get("/home/tonyj/Data/watch/");
+        Path source = Paths.get(System.getProperty("watchDir","/home/tonyj/Data/arasmus/"));
+        Pattern watchPattern = Pattern.compile(System.getProperty("watchPattern",".+(\\d)_rng\\d+.*"));    
+        Path dest = Paths.get(System.getProperty("watchDir","/mnt/ramdisk"));
         
         for (;;) {
-            Stream<Path> find = Files.find(source,1, (Path t, BasicFileAttributes u) -> pattern.matcher(t.getFileName().toString()).matches());
+            Stream<Path> find = Files.find(source,1, (Path t, BasicFileAttributes u) -> watchPattern.matcher(t.getFileName().toString()).matches());
             find.forEach((path) -> { 
                 try {
                     Files.copy(path, dest.resolve(path.getFileName()), StandardCopyOption.REPLACE_EXISTING); 
@@ -46,7 +46,8 @@ public class Test {
             String date = df.format(new Date());
             List<String> lines = Collections.singletonList(date);
             for (int i=0; i<4; i++) {
-                Path path = dest.resolve(Paths.get(String.format("BF%d_rng0000.txt",i)));
+                Path path = dest.resolve(Paths.get(String.format("xxx%d_rng0000.txt",i)));
+                Files.deleteIfExists(path);
                 Files.write(path, lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             }
         }

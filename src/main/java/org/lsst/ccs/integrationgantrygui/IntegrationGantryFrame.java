@@ -15,6 +15,8 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
     private final ImageComponent[] imageComponents;
     private final JLabel[] labels;
+    private final ScalableImageProvider[] imageProvider;
+    private ScalableImageProvider.Scaling scaling = ScalableImageProvider.Scaling.LOG;
 
     /**
      * Creates new form IntegrationGantryFrame
@@ -25,10 +27,12 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         displayComboBox.setSelectedItem(ScalableImageProvider.Scaling.LOG);
         imageComponents = new ImageComponent[]{imageComponent1, imageComponent2, imageComponent3, imageComponent4};
         labels = new JLabel[]{jLabel1, jLabel2, jLabel3, jLabel4};
+        imageProvider = new ScalableImageProvider[4];
     }
 
     void setImage(int i, ScalableImageProvider image) {
-        imageComponents[i].setImage(image.createScaledImage(ScalableImageProvider.Scaling.LOG));
+        imageProvider[i] = image;
+        imageComponents[i].setImage(image.createScaledImage(scaling));
     }
 
     void setLabel(int i, String text) {
@@ -120,7 +124,6 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
         getContentPane().add(jPanel1, java.awt.BorderLayout.CENTER);
 
-        displayComboBox.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { " Linear", " Log", " Sqrt", " Square", " Hist", " Asinh" }));
         displayComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 displayComboBoxActionPerformed(evt);
@@ -149,7 +152,13 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void displayComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayComboBoxActionPerformed
-        // TODO add your handling code here:
+        ScalableImageProvider.Scaling newScaling = displayComboBox.getItemAt(displayComboBox.getSelectedIndex());
+        this.scaling = newScaling;
+        for (int i = 0; i < 4; i++) {
+            if (imageComponents != null) {
+                imageComponents[i].setImage(imageProvider[i].createScaledImage(newScaling));
+            }
+        }
     }//GEN-LAST:event_displayComboBoxActionPerformed
 
     private void imageComponent4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent4MouseClicked
@@ -206,7 +215,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(IntegrationGantryFrame.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
-        
+
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
             new IntegrationGantryFrame().setVisible(true);
@@ -214,7 +223,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JComboBox<String> displayComboBox;
+    private javax.swing.JComboBox<ScalableImageProvider.Scaling> displayComboBox;
     private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent1;
     private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent2;
     private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent3;

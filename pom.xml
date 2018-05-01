@@ -1,10 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <name>LSST CCS - Integration Gantry GUI</name>
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.lsst.ccs</groupId>
-    <artifactId>IntegrationGantryGUI</artifactId>
+    <artifactId>org-lsst-ccs-subsystem-integrationgantrygui</artifactId>
     <version>1.0-SNAPSHOT</version>
     <packaging>jar</packaging>
+    <url>${org.lsst.ccs.site.url}</url>
+            
+    <parent>
+        <groupId>org.lsst</groupId>
+        <artifactId>org-lsst-ccs-subsystem-main</artifactId>
+        <version>5.1.3</version>
+        <relativePath />
+    </parent>
+    
+    <repositories>
+        <repository>
+            <id>lsst-maven2-public</id>
+            <name>LSST Maven 2 central repository</name>
+            <url>http://dev.lsstcorp.org:8081/nexus/content/groups/ccs-maven2-public/</url>
+        </repository>
+    </repositories>
+        
     <dependencies>
         <dependency>
             <groupId>gov.nasa.gsfc.heasarc</groupId>
@@ -17,16 +35,8 @@
             <version>4.12</version>
             <scope>test</scope>
         </dependency>
-        <dependency>
-            <groupId>org.hamcrest</groupId>
-            <artifactId>hamcrest-core</artifactId>
-            <version>1.3</version>
-            <scope>test</scope>
-        </dependency>
     </dependencies>
     <properties>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <org.lsst.ccs.site.url>http://dev.lsstcorp.org:8081/nexus/content/sites/${org.lsst.ccs.site.name}/site-root/subsystems/org-lsst-ccs-subsystem-ocsbridge/${project.version}/${project.artifactId}</org.lsst.ccs.site.url>
     </properties>
 </project>
