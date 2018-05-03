@@ -38,10 +38,10 @@ public class Main {
     private final AtomicInteger count = new AtomicInteger();
 
     Main() {
-        cameraMap.put(2, 0);
-        cameraMap.put(3, 1);
-        cameraMap.put(0, 2);
-        cameraMap.put(1, 3);
+        cameraMap.put(0, 0);
+        cameraMap.put(1, 1);
+        cameraMap.put(2, 2);
+        cameraMap.put(3, 3);
     }
 
     private void start() throws IOException, InterruptedException {
