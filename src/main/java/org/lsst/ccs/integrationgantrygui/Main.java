@@ -76,7 +76,7 @@ public class Main {
         Runnable runnable = () -> {
             for (;;) {
                 try {
-                    LOG.log(Level.INFO, "Frame rate {0} fps", count.getAndSet(0));
+                    frame.setFPS(count.getAndSet(0));
                     Thread.sleep(1000);
                 } catch (InterruptedException ex) {
                     LOG.log(Level.SEVERE, "Exception in timer thread", ex);
