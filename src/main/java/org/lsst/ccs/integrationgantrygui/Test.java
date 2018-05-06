@@ -37,7 +37,7 @@ public class Test {
             find.forEach((path) -> { 
                 try {
                     Files.copy(path, dest.resolve(path.getFileName()), StandardCopyOption.REPLACE_EXISTING); 
-                    Thread.sleep(10);
+                    Thread.sleep(5);
                 } catch (IOException | InterruptedException ex) {
                     LOG.log(Level.SEVERE, "Error copying file", ex);
                 } 
