@@ -2,9 +2,13 @@ package org.lsst.ccs.integrationgantrygui;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Container;
+import javax.swing.ButtonGroup;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JLabel;
+import javax.swing.JMenuItem;
+import javax.swing.JRadioButtonMenuItem;
 import javax.swing.SwingUtilities;
 
 /**
@@ -28,7 +32,14 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     public IntegrationGantryFrame() {
         initComponents();
         displayComboBox.setModel(new DefaultComboBoxModel(ScalableImageProvider.Scaling.values()));
-        displayComboBox.setSelectedItem(ScalableImageProvider.Scaling.LOG);
+        ButtonGroup scaleGroup = new ButtonGroup();
+        for (ScalableImageProvider.Scaling scale : ScalableImageProvider.Scaling.values()) {
+            final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(scale.toString(), scale == scaling);
+            scaleGroup.add(menuItem);
+            imageScalingMenu.add(menuItem);
+            menuItem.addActionListener((evt) -> setScaling(scale));
+        }
+        displayComboBox.setSelectedItem(scaling);
         imageComponents = new ImageComponent[]{imageComponent1, imageComponent2, imageComponent3, imageComponent4};
         labels = new JLabel[]{jLabel1, jLabel2, jLabel3, jLabel4};
         axes = new JLabel[]{topCoordinateLabel, bottomCoordinateLabel, rightCoordinateLabel, leftCoordinateLabel};
@@ -47,7 +58,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     void setFPS(int fps) {
         SwingUtilities.invokeLater(() -> {
             fpsTextBox.setText(String.valueOf(fps));
-            fpsTextBox.setForeground(fps < 1 ? Color.RED : Color.BLACK);
+            fpsTextBox.setForeground(fps < 1 ? Color.RED : fpsTextBox.getParent().getForeground());
         });
     }
 
@@ -89,6 +100,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         exitMenuItem = new javax.swing.JMenuItem();
         viewMenu = new javax.swing.JMenu();
         viewCoordinatesMenuItem = new javax.swing.JCheckBoxMenuItem();
+        imageScalingMenu = new javax.swing.JMenu();
 
         jLabel8.setText("jLabel8");
 
@@ -102,6 +114,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
             }
         });
 
+        fpsTextBox.setEditable(false);
         fpsTextBox.setColumns(3);
         fpsTextBox.setText("100");
 
@@ -242,6 +255,9 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         });
         viewMenu.add(viewCoordinatesMenuItem);
 
+        imageScalingMenu.setText("Image Scaling");
+        viewMenu.add(imageScalingMenu);
+
         jMenuBar1.add(viewMenu);
 
         setJMenuBar(jMenuBar1);
@@ -251,13 +267,26 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
     private void displayComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_displayComboBoxActionPerformed
         ScalableImageProvider.Scaling newScaling = displayComboBox.getItemAt(displayComboBox.getSelectedIndex());
-        this.scaling = newScaling;
-        for (int i = 0; i < 4; i++) {
-            if (imageComponents != null) {
-                imageComponents[i].setImage(imageProvider[i].createScaledImage(newScaling));
+        setScaling(newScaling);
+    }//GEN-LAST:event_displayComboBoxActionPerformed
+
+    private void setScaling(ScalableImageProvider.Scaling newScaling) {
+        if (newScaling != scaling) {
+            this.scaling = newScaling;
+            displayComboBox.setSelectedItem(newScaling);
+            for (Component c : imageScalingMenu.getMenuComponents()) {
+                if (c instanceof JMenuItem && ((JMenuItem) c).getText().equals(scaling.toString())) {
+                    ((JMenuItem) c).setSelected(true);
+                }
+            }
+            
+            for (int i = 0; i < 4; i++) {
+                if (imageComponents != null) {
+                    imageComponents[i].setImage(imageProvider[i].createScaledImage(newScaling));
+                }
             }
         }
-    }//GEN-LAST:event_displayComboBoxActionPerformed
+    }
 
     private void imageComponent4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent4MouseClicked
         imageComponentMouseClicked(evt, 3);
@@ -289,15 +318,15 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
     private void imageComponentMouseClicked(java.awt.event.MouseEvent evt, int position) {
         if (evt.getClickCount() == 2) {
-            Container imagePanel = evt.getComponent().getParent();
-            if (imagePanel.getParent() == coordinatePanel) {
-                coordinatePanel.remove(imagePanel);
+            Container clickedPanel = evt.getComponent().getParent();
+            if (clickedPanel.getParent() == coordinatePanel) {
+                coordinatePanel.remove(clickedPanel);
                 coordinatePanel.add(imagePanel, BorderLayout.CENTER);
-                imagePanel.add(imagePanel, position);
+                imagePanel.add(clickedPanel, position);
             } else {
-                imagePanel.remove(imagePanel);
+                imagePanel.remove(clickedPanel);
                 coordinatePanel.remove(imagePanel);
-                coordinatePanel.add(imagePanel, BorderLayout.CENTER);
+                coordinatePanel.add(clickedPanel, BorderLayout.CENTER);
             }
             coordinatePanel.validate();
             this.repaint();
@@ -343,6 +372,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent3;
     private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent4;
     private javax.swing.JPanel imagePanel;
+    private javax.swing.JMenu imageScalingMenu;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
