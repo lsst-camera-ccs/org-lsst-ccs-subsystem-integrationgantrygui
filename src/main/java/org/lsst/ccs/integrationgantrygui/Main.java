@@ -1,5 +1,6 @@
 package org.lsst.ccs.integrationgantrygui;
 
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.BufferUnderflowException;
 import java.nio.file.Files;
@@ -21,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.swing.SwingUtilities;
 import nom.tam.fits.TruncatedFileException;
+import javax.script.ScriptException;
 
 /**
  * Main class for the integration gantry gui
@@ -30,8 +32,8 @@ import nom.tam.fits.TruncatedFileException;
 public class Main {
 
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
-    private final Path watchDir = Paths.get(System.getProperty("watchDir","/mnt/ramdisk"));
-    private final Pattern watchPattern = Pattern.compile(System.getProperty("watchPattern",".+(\\d)_rng\\d+.*"));
+    private final Path watchDir = Paths.get(System.getProperty("watchDir", "/mnt/ramdisk"));
+    private final Pattern watchPattern = Pattern.compile(System.getProperty("watchPattern", ".+(\\d)_rng\\d+.*"));
     private final Map<Integer, Integer> cameraMap = new HashMap<>();
     private int i = 0;
     private int j = 0;
@@ -84,6 +86,7 @@ public class Main {
             }
         };
         workQueue.execute(runnable);
+        JSONParser parser = new JSONParser();
 
         try (WatchService watchService = watchDir.getFileSystem().newWatchService()) {
             watchDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
@@ -106,7 +109,7 @@ public class Main {
                                 queue.add(watchDir.resolve(path));
                                 i++;
                                 if (i % 100 == 0) {
-                                    LOG.log(Level.FINE,"{0}% of files were processed\n", j);
+                                    LOG.log(Level.FINE, "{0}% of files were processed\n", j);
                                     j = 0;
                                 }
                             }
@@ -122,6 +125,19 @@ public class Main {
                             } catch (IOException ex) {
                                 LOG.log(Level.SEVERE, "Error reading text file", ex);
                             }
+                        }
+                    } else if (fileName.endsWith(".json")) {
+                        boolean isHorizontal = fileName.contains("horiz");
+                        try {
+                            Map<String, List<Integer>> rois = parser.parseROI(Files.readAllLines(fullPath));
+                            rois.forEach((t, u) -> {
+                                int index = Integer.parseInt(t);
+                                SwingUtilities.invokeLater(() -> {
+                                    frame.setROI(isHorizontal,index,u);
+                                });
+                            });
+                        } catch (IOException | ScriptException ex) {
+                            LOG.log(Level.SEVERE, "Error reading json file", ex);
                         }
                     }
                 });

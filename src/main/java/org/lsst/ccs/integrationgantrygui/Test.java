@@ -50,6 +50,15 @@ public class Test {
                 Files.deleteIfExists(path);
                 Files.write(path, lines, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
             }
+            // Write the .json files to shows the ROIs
+            Path roi1 = dest.resolve(Paths.get("camera_horiz_ROIs.json"));
+            Files.deleteIfExists(roi1);
+            Files.write(roi1,Collections.singletonList("{\"1\": [110, 610, 1405, 1504], \"0\": [110, 610, 1405, 1504], \"3\": [110, 610, 1230, 1329], \"2\": [110, 610, 1230, 1329]}")
+                    , StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+            Path roi2 = dest.resolve(Paths.get("camera_vert_ROIs.json"));
+            Files.deleteIfExists(roi2);
+            Files.write(roi2,Collections.singletonList("{\"1\": [240, 339, 1120, 1520], \"0\": [400, 499, 1120, 1520], \"3\": [240, 339, 1120, 1520], \"2\": [400, 499, 1120, 1520]}")
+                    , StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
         }
     }
 }
