@@ -63,8 +63,8 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         });
     }
 
-    void setROI(boolean horizontal, int index, List<Integer> u) {
-
+    void setROI(boolean horizontal, int index, List<Integer> roi) {
+        imageComponents[index].setROI(horizontal, roi);
     }
 
     /**
@@ -105,6 +105,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         exitMenuItem = new javax.swing.JMenuItem();
         viewMenu = new javax.swing.JMenu();
         viewCoordinatesMenuItem = new javax.swing.JCheckBoxMenuItem();
+        showROIMenuItem = new javax.swing.JCheckBoxMenuItem();
         imageScalingMenu = new javax.swing.JMenu();
 
         jLabel8.setText("jLabel8");
@@ -260,6 +261,15 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         });
         viewMenu.add(viewCoordinatesMenuItem);
 
+        showROIMenuItem.setSelected(true);
+        showROIMenuItem.setText("Show ROIs");
+        showROIMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showROIMenuItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(showROIMenuItem);
+
         imageScalingMenu.setText("Image Scaling");
         viewMenu.add(imageScalingMenu);
 
@@ -320,6 +330,12 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         validate();
         repaint();
     }//GEN-LAST:event_viewCoordinatesMenuItemActionPerformed
+
+    private void showROIMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showROIMenuItemActionPerformed
+        for (ImageComponent image : imageComponents) {
+            image.setShowROI(showROIMenuItem.isSelected());
+        }
+    }//GEN-LAST:event_showROIMenuItemActionPerformed
 
     private void imageComponentMouseClicked(java.awt.event.MouseEvent evt, int position) {
         if (evt.getClickCount() == 2) {
@@ -387,6 +403,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel5;
     private javax.swing.JLabel leftCoordinateLabel;
     private javax.swing.JLabel rightCoordinateLabel;
+    private javax.swing.JCheckBoxMenuItem showROIMenuItem;
     private javax.swing.JLabel topCoordinateLabel;
     private javax.swing.JCheckBoxMenuItem viewCoordinatesMenuItem;
     private javax.swing.JMenu viewMenu;
