@@ -215,25 +215,25 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
         topCoordinateLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         topCoordinateLabel.setIcon(new org.lsst.ccs.integrationgantrygui.icon.ArrowUp(ICON_SIZE,ICON_SIZE));
-        topCoordinateLabel.setText("+X");
+        topCoordinateLabel.setText("+X West");
         coordinatePanel.add(topCoordinateLabel, java.awt.BorderLayout.NORTH);
 
         bottomCoordinateLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         bottomCoordinateLabel.setIcon(new org.lsst.ccs.integrationgantrygui.icon.ArrowDown(ICON_SIZE,ICON_SIZE));
-        bottomCoordinateLabel.setText("-X");
+        bottomCoordinateLabel.setText("-X East");
         coordinatePanel.add(bottomCoordinateLabel, java.awt.BorderLayout.PAGE_END);
 
         rightCoordinateLabel.setIcon(new org.lsst.ccs.integrationgantrygui.icon.ArrowRight(ICON_SIZE,ICON_SIZE));
-        rightCoordinateLabel.setText("+Y");
+        rightCoordinateLabel.setText("<HTML><center><br>+Y<br> <br>S<br>o<br>u<br>t<br>h<br></center>");
         rightCoordinateLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        rightCoordinateLabel.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        rightCoordinateLabel.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         coordinatePanel.add(rightCoordinateLabel, java.awt.BorderLayout.LINE_END);
 
         leftCoordinateLabel.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
         leftCoordinateLabel.setIcon(new org.lsst.ccs.integrationgantrygui.icon.ArrowLeft(ICON_SIZE,ICON_SIZE));
-        leftCoordinateLabel.setText("-Y");
+        leftCoordinateLabel.setText("<HTML><center><br>-Y<br> <br>N<br>o<br>r<br>t<br>h<br></center>");
         leftCoordinateLabel.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
-        leftCoordinateLabel.setVerticalTextPosition(javax.swing.SwingConstants.TOP);
+        leftCoordinateLabel.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
         coordinatePanel.add(leftCoordinateLabel, java.awt.BorderLayout.LINE_START);
 
         getContentPane().add(coordinatePanel, java.awt.BorderLayout.CENTER);
