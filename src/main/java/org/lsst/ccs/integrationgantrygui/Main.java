@@ -8,6 +8,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -35,7 +36,7 @@ public class Main {
     private final Pattern watchPattern = Pattern.compile(System.getProperty("watchPattern", ".+(\\d)_rng\\d+.*"));
     private final Pattern textPattern = Pattern.compile("((horiz)?\\s*((\\d|\\.)*)?\\s*((\\d|\\.)*)?.*)\\s+\\|\\s+((vert)?\\s*((\\d|\\.)*)?\\s*((\\d|\\.)*)?.*)");
 
-//    private final Map<Integer, Integer> cameraMap = new HashMap<>();
+    private final Map<Integer, Integer> cameraMap = new HashMap<>();
     private int totalFiles = 0;
     private int processFiles = 0;
     private final AtomicInteger count = new AtomicInteger();
@@ -44,10 +45,10 @@ public class Main {
     private LinkedBlockingQueue[] queues;
 
     Main() {
-//        cameraMap.put(0, 0);
-//        cameraMap.put(1, 1);
-//        cameraMap.put(2, 2);
-//        cameraMap.put(3, 3);
+        cameraMap.put(0, 2);
+        cameraMap.put(1, 3);
+        cameraMap.put(2, 0);
+        cameraMap.put(3, 1);
     }
 
     private void start() throws IOException, InterruptedException {
@@ -100,10 +101,11 @@ public class Main {
             if (matcher.matches()) {
                 // TODO: Only handle most recent file for each index
                 int index = Integer.parseInt(matcher.group(1));
+                int mappedIndex = cameraMap.get(index);
                 if (fileName.endsWith(".fits")) {
-                    handleFitsFile(fullPath, index, path);
+                    handleFitsFile(fullPath, mappedIndex, path);
                 } else if (fileName.endsWith(".txt")) {
-                    handleTextFile(fullPath, index);
+                    handleTextFile(fullPath, mappedIndex);
                 }
             } else if (fileName.endsWith(".json")) {
                 handleJSONFile(fileName, fullPath);
@@ -120,10 +122,11 @@ public class Main {
                     Matcher matcher = watchPattern.matcher(fileName);
                     if (matcher.matches()) {
                         int index = Integer.parseInt(matcher.group(1));
+                        int mappedIndex = cameraMap.get(index);
                         if (fileName.endsWith(".fits")) {
-                            handleFitsFile(fullPath, index, path);
+                            handleFitsFile(fullPath, mappedIndex, path);
                         } else if (fileName.endsWith(".txt")) {
-                            handleTextFile(fullPath, index);
+                            handleTextFile(fullPath, mappedIndex);
                         }
                     } else if (fileName.endsWith(".json")) {
                         handleJSONFile(fileName, fullPath);
@@ -157,10 +160,8 @@ public class Main {
             Matcher matcher = textPattern.matcher(text.get(0));
             if (matcher.matches()) {
                 int findex = index;
-                boolean hasHoriz = "horiz".equals(matcher.group(2));
                 double h1 = parseDouble(matcher.group(3));
                 double h2 = parseDouble(matcher.group(5));
-                boolean hasVert = "vert".equals(matcher.group(8));
                 double v1 = parseDouble(matcher.group(9));
                 double v2 = parseDouble(matcher.group(11));
                 // Parse the string...
@@ -179,8 +180,9 @@ public class Main {
             Map<String, List<Integer>> rois = parser.parseROI(Files.readAllLines(fullPath));
             rois.forEach((t, u) -> {
                 int index = Integer.parseInt(t);
+                int mappedIndex = cameraMap.get(index);
                 SwingUtilities.invokeLater(() -> {
-                    frame.setROI(isHorizontal, index, u);
+                    frame.setROI(isHorizontal, mappedIndex, u);
                 });
             });
         } catch (IOException | ScriptException ex) {
