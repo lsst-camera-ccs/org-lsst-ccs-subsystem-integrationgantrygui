@@ -1,6 +1,7 @@
 package org.lsst.ccs.integrationgantrygui;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
@@ -22,8 +23,10 @@ public class ImageComponent extends JComponent {
     private Rectangle verticalROI;
     private boolean showROI = true;
 
+    @SuppressWarnings("OverridableMethodCallInConstructor")
     public ImageComponent() {
         image = null;
+        setPreferredSize(new Dimension(400,400));
     }
 
     ImageComponent(BufferedImage image) {

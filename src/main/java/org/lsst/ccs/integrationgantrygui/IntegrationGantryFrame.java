@@ -21,8 +21,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private static final long serialVersionUID = 1L;
     private static final int ICON_SIZE = 24;
 
-    private final ImageComponent[] imageComponents;
-    private final JLabel[] labels;
+    private final CameraPanel[] cameraPanels;
     private final ScalableImageProvider[] imageProvider;
     private ScalableImageProvider.Scaling scaling = ScalableImageProvider.Scaling.LOG;
     private final JLabel[] axes;
@@ -41,19 +40,18 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
             menuItem.addActionListener((evt) -> setScaling(scale));
         }
         displayComboBox.setSelectedItem(scaling);
-        imageComponents = new ImageComponent[]{imageComponent1, imageComponent2, imageComponent3, imageComponent4};
-        labels = new JLabel[]{jLabel1, jLabel2, jLabel3, jLabel4};
+        cameraPanels = new CameraPanel[]{cameraPanel1, cameraPanel2, cameraPanel3, cameraPanel4};
         axes = new JLabel[]{topCoordinateLabel, bottomCoordinateLabel, rightCoordinateLabel, leftCoordinateLabel};
         imageProvider = new ScalableImageProvider[4];
     }
 
     void setImage(int i, ScalableImageProvider image) {
         imageProvider[i] = image;
-        imageComponents[i].setImage(image.createScaledImage(scaling));
+        cameraPanels[i].setImage(image.createScaledImage(scaling));
     }
 
-    void setLabel(int i, String text) {
-        labels[i].setText(text);
+    void setLabel(int i, double h1, double h2, double v1, double v2) {
+        cameraPanels[i].setLabels(h1,h2,v1,v2);
     }
 
     void setFPS(int fps) {
@@ -64,7 +62,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     }
 
     void setROI(boolean horizontal, int index, List<Integer> roi) {
-        imageComponents[index].setROI(horizontal, roi);
+        cameraPanels[index].setROI(horizontal, roi);
     }
 
     /**
@@ -84,18 +82,10 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
         coordinatePanel = new javax.swing.JPanel();
         imagePanel = new javax.swing.JPanel();
-        javax.swing.JPanel jPanel2 = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
-        imageComponent1 = new org.lsst.ccs.integrationgantrygui.ImageComponent();
-        javax.swing.JPanel jPanel3 = new javax.swing.JPanel();
-        jLabel2 = new javax.swing.JLabel();
-        imageComponent2 = new org.lsst.ccs.integrationgantrygui.ImageComponent();
-        javax.swing.JPanel jPanel4 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
-        imageComponent3 = new org.lsst.ccs.integrationgantrygui.ImageComponent();
-        jPanel5 = new javax.swing.JPanel();
-        jLabel4 = new javax.swing.JLabel();
-        imageComponent4 = new org.lsst.ccs.integrationgantrygui.ImageComponent();
+        cameraPanel1 = new org.lsst.ccs.integrationgantrygui.CameraPanel();
+        cameraPanel2 = new org.lsst.ccs.integrationgantrygui.CameraPanel();
+        cameraPanel3 = new org.lsst.ccs.integrationgantrygui.CameraPanel();
+        cameraPanel4 = new org.lsst.ccs.integrationgantrygui.CameraPanel();
         topCoordinateLabel = new javax.swing.JLabel();
         bottomCoordinateLabel = new javax.swing.JLabel();
         rightCoordinateLabel = new javax.swing.JLabel();
@@ -112,7 +102,8 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Integration Gantry Cameras");
-        setPreferredSize(new java.awt.Dimension(800, 800));
+        setPreferredSize(null);
+        setResizable(false);
 
         displayComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -137,7 +128,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(displayComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 350, Short.MAX_VALUE)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(fpsTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -159,57 +150,37 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
         imagePanel.setLayout(new java.awt.GridLayout(2, 2));
 
-        jPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 1"));
-        jPanel2.setLayout(new java.awt.BorderLayout());
-        jPanel2.add(jLabel1, java.awt.BorderLayout.NORTH);
-
-        imageComponent1.addMouseListener(new java.awt.event.MouseAdapter() {
+        cameraPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 1"));
+        cameraPanel1.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                imageComponent1MouseClicked(evt);
+                cameraPanel1MouseClicked(evt);
             }
         });
-        jPanel2.add(imageComponent1, java.awt.BorderLayout.CENTER);
+        imagePanel.add(cameraPanel1);
 
-        imagePanel.add(jPanel2);
-
-        jPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 2"));
-        jPanel3.setLayout(new java.awt.BorderLayout());
-        jPanel3.add(jLabel2, java.awt.BorderLayout.NORTH);
-
-        imageComponent2.addMouseListener(new java.awt.event.MouseAdapter() {
+        cameraPanel2.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 2"));
+        cameraPanel2.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                imageComponent2MouseClicked(evt);
+                cameraPanel2MouseClicked(evt);
             }
         });
-        jPanel3.add(imageComponent2, java.awt.BorderLayout.CENTER);
+        imagePanel.add(cameraPanel2);
 
-        imagePanel.add(jPanel3);
-
-        jPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 3"));
-        jPanel4.setLayout(new java.awt.BorderLayout());
-        jPanel4.add(jLabel3, java.awt.BorderLayout.NORTH);
-
-        imageComponent3.addMouseListener(new java.awt.event.MouseAdapter() {
+        cameraPanel3.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 3"));
+        cameraPanel3.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                imageComponent3MouseClicked(evt);
+                cameraPanel3MouseClicked(evt);
             }
         });
-        jPanel4.add(imageComponent3, java.awt.BorderLayout.CENTER);
+        imagePanel.add(cameraPanel3);
 
-        imagePanel.add(jPanel4);
-
-        jPanel5.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 4"));
-        jPanel5.setLayout(new java.awt.BorderLayout());
-        jPanel5.add(jLabel4, java.awt.BorderLayout.NORTH);
-
-        imageComponent4.addMouseListener(new java.awt.event.MouseAdapter() {
+        cameraPanel4.setBorder(javax.swing.BorderFactory.createTitledBorder("Camera 4"));
+        cameraPanel4.addMouseListener(new java.awt.event.MouseAdapter() {
             public void mouseClicked(java.awt.event.MouseEvent evt) {
-                imageComponent4MouseClicked(evt);
+                cameraPanel4MouseClicked(evt);
             }
         });
-        jPanel5.add(imageComponent4, java.awt.BorderLayout.CENTER);
-
-        imagePanel.add(jPanel5);
+        imagePanel.add(cameraPanel4);
 
         coordinatePanel.add(imagePanel, java.awt.BorderLayout.CENTER);
 
@@ -296,28 +267,12 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
             }
             
             for (int i = 0; i < 4; i++) {
-                if (imageComponents != null) {
-                    imageComponents[i].setImage(imageProvider[i].createScaledImage(newScaling));
+                if (cameraPanels != null) {
+                    cameraPanels[i].setImage(imageProvider[i].createScaledImage(newScaling));
                 }
             }
         }
     }
-
-    private void imageComponent4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent4MouseClicked
-        imageComponentMouseClicked(evt, 3);
-    }//GEN-LAST:event_imageComponent4MouseClicked
-
-    private void imageComponent3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent3MouseClicked
-        imageComponentMouseClicked(evt, 2);
-    }//GEN-LAST:event_imageComponent3MouseClicked
-
-    private void imageComponent2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent2MouseClicked
-        imageComponentMouseClicked(evt, 1);
-    }//GEN-LAST:event_imageComponent2MouseClicked
-
-    private void imageComponent1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_imageComponent1MouseClicked
-        imageComponentMouseClicked(evt, 0);
-    }//GEN-LAST:event_imageComponent1MouseClicked
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
         System.exit(0);
@@ -332,14 +287,30 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     }//GEN-LAST:event_viewCoordinatesMenuItemActionPerformed
 
     private void showROIMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showROIMenuItemActionPerformed
-        for (ImageComponent image : imageComponents) {
-            image.setShowROI(showROIMenuItem.isSelected());
+        for (CameraPanel panel : cameraPanels) {
+            panel.setShowROI(showROIMenuItem.isSelected());
         }
     }//GEN-LAST:event_showROIMenuItemActionPerformed
 
-    private void imageComponentMouseClicked(java.awt.event.MouseEvent evt, int position) {
+    private void cameraPanel1MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cameraPanel1MouseClicked
+        cameraPanelMouseClicked(evt, 0);
+    }//GEN-LAST:event_cameraPanel1MouseClicked
+
+    private void cameraPanel2MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cameraPanel2MouseClicked
+        cameraPanelMouseClicked(evt, 1);
+    }//GEN-LAST:event_cameraPanel2MouseClicked
+
+    private void cameraPanel3MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cameraPanel3MouseClicked
+        cameraPanelMouseClicked(evt, 2);
+    }//GEN-LAST:event_cameraPanel3MouseClicked
+
+    private void cameraPanel4MouseClicked(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_cameraPanel4MouseClicked
+        cameraPanelMouseClicked(evt, 3);
+    }//GEN-LAST:event_cameraPanel4MouseClicked
+
+    private void cameraPanelMouseClicked(java.awt.event.MouseEvent evt, int position) {
         if (evt.getClickCount() == 2) {
-            Container clickedPanel = evt.getComponent().getParent();
+            Component clickedPanel = evt.getComponent();
             if (clickedPanel.getParent() == coordinatePanel) {
                 coordinatePanel.remove(clickedPanel);
                 coordinatePanel.add(imagePanel, BorderLayout.CENTER);
@@ -383,24 +354,19 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JLabel bottomCoordinateLabel;
+    private org.lsst.ccs.integrationgantrygui.CameraPanel cameraPanel1;
+    private org.lsst.ccs.integrationgantrygui.CameraPanel cameraPanel2;
+    private org.lsst.ccs.integrationgantrygui.CameraPanel cameraPanel3;
+    private org.lsst.ccs.integrationgantrygui.CameraPanel cameraPanel4;
     private javax.swing.JPanel coordinatePanel;
     private javax.swing.JComboBox<ScalableImageProvider.Scaling> displayComboBox;
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JTextField fpsTextBox;
-    private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent1;
-    private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent2;
-    private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent3;
-    private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent4;
     private javax.swing.JPanel imagePanel;
     private javax.swing.JMenu imageScalingMenu;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel8;
     private javax.swing.JMenuBar jMenuBar1;
-    private javax.swing.JPanel jPanel5;
     private javax.swing.JLabel leftCoordinateLabel;
     private javax.swing.JLabel rightCoordinateLabel;
     private javax.swing.JCheckBoxMenuItem showROIMenuItem;

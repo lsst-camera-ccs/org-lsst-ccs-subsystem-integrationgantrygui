@@ -8,7 +8,6 @@ import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
@@ -34,6 +33,8 @@ public class Main {
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
     private final Path watchDir = Paths.get(System.getProperty("watchDir", "/mnt/ramdisk"));
     private final Pattern watchPattern = Pattern.compile(System.getProperty("watchPattern", ".+(\\d)_rng\\d+.*"));
+    private final Pattern textPattern = Pattern.compile("((horiz)?\\s*((\\d|\\.)*)?\\s*((\\d|\\.)*)?.*)\\s+\\|\\s+((vert)?\\s*((\\d|\\.)*)?\\s*((\\d|\\.)*)?.*)");
+
 //    private final Map<Integer, Integer> cameraMap = new HashMap<>();
     private int totalFiles = 0;
     private int processFiles = 0;
@@ -153,10 +154,18 @@ public class Main {
     private void handleTextFile(Path fullPath, int index) {
         try {
             List<String> text = Files.readAllLines(fullPath);
-            if (!text.isEmpty()) {
+            Matcher matcher = textPattern.matcher(text.get(0));
+            if (matcher.matches()) {
                 int findex = index;
+                boolean hasHoriz = "horiz".equals(matcher.group(2));
+                double h1 = parseDouble(matcher.group(3));
+                double h2 = parseDouble(matcher.group(5));
+                boolean hasVert = "vert".equals(matcher.group(8));
+                double v1 = parseDouble(matcher.group(9));
+                double v2 = parseDouble(matcher.group(11));
+                // Parse the string...
                 SwingUtilities.invokeLater(() -> {
-                    frame.setLabel(findex, text.get(0));
+                    frame.setLabel(findex, h1, h2, v1, v2);
                 });
             }
         } catch (IOException ex) {
@@ -182,5 +191,13 @@ public class Main {
     public static void main(String[] args) throws IOException, InterruptedException {
         Main main = new Main();
         main.start();
+    }
+
+    private double parseDouble(String string) {
+        try {
+            return Double.parseDouble(string);
+        } catch (NumberFormatException x) {
+            return Double.NaN;
+        }
     }
 }
