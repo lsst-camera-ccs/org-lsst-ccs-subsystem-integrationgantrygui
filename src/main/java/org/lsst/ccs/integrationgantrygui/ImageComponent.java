@@ -22,11 +22,14 @@ public class ImageComponent extends JComponent {
     private Rectangle horizontalROI;
     private Rectangle verticalROI;
     private boolean showROI = true;
+    private Color verticalColor = new Color(1f, 0f, 0f, 0.5f);
+    private Color horizontalColor = new Color(1f, 0f, 0f, 0.5f);
+
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public ImageComponent() {
         image = null;
-        setPreferredSize(new Dimension(400,400));
+        setPreferredSize(new Dimension(300,300));
     }
 
     ImageComponent(BufferedImage image) {
@@ -69,15 +72,35 @@ public class ImageComponent extends JComponent {
                     "Paint image of type %d and size %dx%d took %dms", image.getType(), image.getWidth(), image.getHeight()
             );
             if (showROI) {
-                g2.setColor(ROI_COLOR);
                 if (horizontalROI != null) {
+                    g2.setColor(horizontalColor);
                     g2.fill(horizontalROI);
                 }
                 if (verticalROI != null) {
+                    g2.setColor(verticalColor);
                     g2.fill(verticalROI);
                 }
             }
         }
+    }    
+
+    public Color getVerticalColor() {
+        return verticalColor;
     }
-    private static final Color ROI_COLOR = new Color(1f, 0f, 0f, 0.5f);
+
+    public void setVerticalColor(Color verticalColor) {
+        this.verticalColor = deriveAlpha(verticalColor);
+    }
+
+    public Color getHorizontalColor() {
+        return horizontalColor;
+    }
+
+    public void setHorizontalColor(Color horizontalColor) {
+        this.horizontalColor = deriveAlpha(horizontalColor);
+    }
+
+   private static Color deriveAlpha(Color color) {
+        return new Color(color.getRed(), color.getGreen(), color.getBlue(), 128);
+    }
 }

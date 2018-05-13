@@ -16,6 +16,8 @@ public class CameraPanel extends javax.swing.JPanel {
      */
     public CameraPanel() {
         initComponents();
+        imageComponent.setHorizontalColor(horizLabel.getForeground());
+        imageComponent.setVerticalColor(vertLabel.getForeground());
     }
 
     /**
@@ -28,11 +30,11 @@ public class CameraPanel extends javax.swing.JPanel {
     private void initComponents() {
 
         InfoPanel = new javax.swing.JPanel();
-        jLabel1 = new javax.swing.JLabel();
+        horizLabel = new javax.swing.JLabel();
         h1TextField = new javax.swing.JTextField();
         h2TextField = new javax.swing.JTextField();
         hGapTextField = new javax.swing.JTextField();
-        jLabel2 = new javax.swing.JLabel();
+        vertLabel = new javax.swing.JLabel();
         v1TextField = new javax.swing.JTextField();
         v2TextField = new javax.swing.JTextField();
         vGapTextField = new javax.swing.JTextField();
@@ -40,8 +42,9 @@ public class CameraPanel extends javax.swing.JPanel {
 
         setLayout(new java.awt.BorderLayout());
 
-        jLabel1.setText("Horiz:");
-        InfoPanel.add(jLabel1);
+        horizLabel.setForeground(new java.awt.Color(0, 51, 255));
+        horizLabel.setText("Horiz:");
+        InfoPanel.add(horizLabel);
 
         h1TextField.setEditable(false);
         h1TextField.setColumns(4);
@@ -55,8 +58,9 @@ public class CameraPanel extends javax.swing.JPanel {
         hGapTextField.setColumns(6);
         InfoPanel.add(hGapTextField);
 
-        jLabel2.setText("Vert:");
-        InfoPanel.add(jLabel2);
+        vertLabel.setForeground(new java.awt.Color(0, 204, 0));
+        vertLabel.setText("Vert:");
+        InfoPanel.add(vertLabel);
 
         v1TextField.setEditable(false);
         v1TextField.setColumns(4);
@@ -80,12 +84,12 @@ public class CameraPanel extends javax.swing.JPanel {
     private javax.swing.JTextField h1TextField;
     private javax.swing.JTextField h2TextField;
     private javax.swing.JTextField hGapTextField;
+    private javax.swing.JLabel horizLabel;
     private org.lsst.ccs.integrationgantrygui.ImageComponent imageComponent;
-    private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel2;
     private javax.swing.JTextField v1TextField;
     private javax.swing.JTextField v2TextField;
     private javax.swing.JTextField vGapTextField;
+    private javax.swing.JLabel vertLabel;
     // End of variables declaration//GEN-END:variables
 
     void setImage(BufferedImage scaledImage) {
