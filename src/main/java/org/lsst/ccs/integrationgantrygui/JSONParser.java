@@ -25,7 +25,7 @@ public class JSONParser {
     }
     
     public Map<String, List<Integer>> parseROI(List<String> json) throws ScriptException {
-        return (Map<String, List<Integer>>) parse(json);
+        return json.isEmpty() ?  Collections.EMPTY_MAP : (Map<String, List<Integer>>) parse(json);
     }
     
     public static void main(String[] args) throws ScriptException {

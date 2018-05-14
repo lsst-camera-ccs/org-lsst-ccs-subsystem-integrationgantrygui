@@ -73,7 +73,6 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jLabel8 = new javax.swing.JLabel();
         javax.swing.JPanel jPanel6 = new javax.swing.JPanel();
         displayComboBox = new javax.swing.JComboBox<>();
         fpsTextBox = new javax.swing.JTextField();
@@ -97,12 +96,8 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         showROIMenuItem = new javax.swing.JCheckBoxMenuItem();
         imageScalingMenu = new javax.swing.JMenu();
 
-        jLabel8.setText("jLabel8");
-
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Integration Gantry Cameras");
-        setPreferredSize(null);
-        setResizable(false);
 
         displayComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -364,7 +359,6 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private javax.swing.JTextField fpsTextBox;
     private javax.swing.JPanel imagePanel;
     private javax.swing.JMenu imageScalingMenu;
-    private javax.swing.JLabel jLabel8;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JLabel leftCoordinateLabel;
     private javax.swing.JLabel rightCoordinateLabel;

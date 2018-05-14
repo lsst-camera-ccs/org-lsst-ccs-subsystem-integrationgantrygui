@@ -94,24 +94,52 @@ public class Main {
         parser = new JSONParser();
 
         Stream<Path> pathList = Files.list(watchDir);
+        Path[] fitsFiles = new Path[4];
+        Path[] textFiles = new Path[4];
+        Path[] jsonFiles = new Path[2];
         pathList.forEach((path) -> {
             Path fullPath = watchDir.resolve(path);
             String fileName = fullPath.getFileName().toString();
             Matcher matcher = watchPattern.matcher(fileName);
             if (matcher.matches()) {
-                // TODO: Only handle most recent file for each index
                 int index = Integer.parseInt(matcher.group(1));
                 int mappedIndex = cameraMap.get(index);
                 if (fileName.endsWith(".fits")) {
-                    handleFitsFile(fullPath, mappedIndex, path);
+                    if (fitsFiles[mappedIndex] == null || fullPath.toFile().lastModified() > fitsFiles[mappedIndex].toFile().lastModified()) {
+                        fitsFiles[mappedIndex] = fullPath;
+                    }
                 } else if (fileName.endsWith(".txt")) {
-                    handleTextFile(fullPath, mappedIndex);
+                    if (textFiles[mappedIndex] == null || fullPath.toFile().lastModified() > textFiles[mappedIndex].toFile().lastModified()) {
+                        textFiles[mappedIndex] = fullPath;
+                    }
                 }
             } else if (fileName.endsWith(".json")) {
-                handleJSONFile(fileName, fullPath);
+                boolean isHorizontal = fileName.contains("horiz");
+                int mappedIndex = isHorizontal ? 0 : 1;
+                if (jsonFiles[mappedIndex] == null || fullPath.toFile().lastModified() > jsonFiles[mappedIndex].toFile().lastModified()) {
+                    jsonFiles[mappedIndex] = fullPath;
+                }
             }
         });
-
+        for (int i = 0; i < 4; i++) {
+            Path fullPath = fitsFiles[i];
+            if (fullPath != null) {
+                handleFitsFile(fullPath, i);
+            }
+        }
+        for (int i = 0; i < 4; i++) {
+            Path fullPath = textFiles[i];
+            if (fullPath != null) {
+                handleTextFile(fullPath, i);
+            }
+        }
+        for (int i = 0; i < 2; i++) {
+            Path fullPath = jsonFiles[i];
+            if (fullPath != null) {
+                handleJSONFile(fullPath.getFileName().toString(), fullPath);
+            }
+        }
+        
         try (WatchService watchService = watchDir.getFileSystem().newWatchService()) {
             watchDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
             for (;;) {
@@ -124,7 +152,7 @@ public class Main {
                         int index = Integer.parseInt(matcher.group(1));
                         int mappedIndex = cameraMap.get(index);
                         if (fileName.endsWith(".fits")) {
-                            handleFitsFile(fullPath, mappedIndex, path);
+                            handleFitsFile(fullPath, mappedIndex);
                         } else if (fileName.endsWith(".txt")) {
                             handleTextFile(fullPath, mappedIndex);
                         }
@@ -137,7 +165,7 @@ public class Main {
         }
     }
 
-    private void handleFitsFile(Path fullPath, int index, Path path) {
+    private void handleFitsFile(Path fullPath, int index) {
         if (fullPath.toFile().length() == 5_071_680 || fullPath.toFile().length() == 10_137_600) {
 
             LinkedBlockingQueue<Path> queue = queues[index];
@@ -145,7 +173,7 @@ public class Main {
             if (poll == null) {
                 processFiles++;
             }
-            queue.add(watchDir.resolve(path));
+            queue.add(fullPath);
             totalFiles++;
             if (totalFiles % 100 == 0) {
                 LOG.log(Level.FINE, "{0}% of files were processed\n", processFiles);
@@ -157,17 +185,19 @@ public class Main {
     private void handleTextFile(Path fullPath, int index) {
         try {
             List<String> text = Files.readAllLines(fullPath);
-            Matcher matcher = textPattern.matcher(text.get(0));
-            if (matcher.matches()) {
-                int findex = index;
-                double h1 = parseDouble(matcher.group(3));
-                double h2 = parseDouble(matcher.group(5));
-                double v1 = parseDouble(matcher.group(9));
-                double v2 = parseDouble(matcher.group(11));
-                // Parse the string...
-                SwingUtilities.invokeLater(() -> {
-                    frame.setLabel(findex, h1, h2, v1, v2);
-                });
+            if (!text.isEmpty()) {
+                Matcher matcher = textPattern.matcher(text.get(0));
+                if (matcher.matches()) {
+                    int findex = index;
+                    double h1 = parseDouble(matcher.group(3));
+                    double h2 = parseDouble(matcher.group(5));
+                    double v1 = parseDouble(matcher.group(9));
+                    double v2 = parseDouble(matcher.group(11));
+                    // Parse the string...
+                    SwingUtilities.invokeLater(() -> {
+                        frame.setLabel(findex, h1, h2, v1, v2);
+                    });
+                }
             }
         } catch (IOException ex) {
             LOG.log(Level.SEVERE, "Error reading text file", ex);

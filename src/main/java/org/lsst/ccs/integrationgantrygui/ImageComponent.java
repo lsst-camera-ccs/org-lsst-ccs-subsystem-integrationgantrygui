@@ -93,26 +93,29 @@ public class ImageComponent extends JComponent {
 
     @Override
     protected void paintComponent(Graphics g) {
-            do {
-                int returnCode;
+        do {
+            int returnCode;
                 if (volatileImage == null) {
-                    returnCode = VolatileImage.IMAGE_INCOMPATIBLE;
-                } else if (volatileImage.getWidth() != this.getWidth() || volatileImage.getHeight() != this.getHeight()) {
-                    returnCode = VolatileImage.IMAGE_INCOMPATIBLE;     
-                } else {
-                    returnCode = volatileImage.validate(getGraphicsConfiguration());
-                }
+                returnCode = VolatileImage.IMAGE_INCOMPATIBLE;
+            } else if (volatileImage.getWidth() != this.getWidth() || volatileImage.getHeight() != this.getHeight()) {
+                returnCode = VolatileImage.IMAGE_INCOMPATIBLE;
+            } else {
+                returnCode = volatileImage.validate(getGraphicsConfiguration());
+            }
 
-                if (returnCode == VolatileImage.IMAGE_RESTORED) {
-                    // Contents need to be restored
-                    renderOffscreen();      // restore contents
-                } else if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
-                    // old vImg doesn't work with new GraphicsConfig; re-create it
-                    volatileImage = createVolatileImage(this.getWidth(), this.getHeight());
-                    renderOffscreen();
-                }
-                g.drawImage(volatileImage, 0, 0, this);
-            } while (volatileImage.contentsLost());
+            if (returnCode == VolatileImage.IMAGE_RESTORED) {
+                // Contents need to be restored
+                renderOffscreen();      // restore contents
+            } else if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
+                // old vImg doesn't work with new GraphicsConfig; re-create it
+                volatileImage = createVolatileImage(this.getWidth(), this.getHeight());
+                renderOffscreen();
+            }
+            Timed.execute(() -> g.drawImage(volatileImage, 0, 0, this),
+                    "paint image of size %dx%d took %dms", volatileImage.getWidth(), volatileImage.getHeight()
+            );
+            
+        } while (volatileImage.contentsLost());
     }
 
     public Color getVerticalColor() {
