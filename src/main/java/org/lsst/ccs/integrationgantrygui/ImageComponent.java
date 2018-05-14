@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.awt.image.VolatileImage;
 import java.util.List;
 import javax.swing.JComponent;
 
@@ -18,18 +19,18 @@ public class ImageComponent extends JComponent {
 
     private static final long serialVersionUID = 1L;
 
-    private BufferedImage image;
+    private BufferedImage originalImage;
     private Rectangle horizontalROI;
     private Rectangle verticalROI;
     private boolean showROI = true;
     private Color verticalColor = new Color(1f, 0f, 0f, 0.5f);
     private Color horizontalColor = new Color(1f, 0f, 0f, 0.5f);
-
+    private VolatileImage volatileImage;
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public ImageComponent() {
-        image = null;
-        setPreferredSize(new Dimension(300,300));
+        originalImage = null;
+        setPreferredSize(new Dimension(300, 300));
     }
 
     ImageComponent(BufferedImage image) {
@@ -38,16 +39,18 @@ public class ImageComponent extends JComponent {
 
     final void setImage(BufferedImage image) {
 
-        this.image = image;
+        this.originalImage = image;
+        renderOffscreen();
         repaint();
     }
 
     BufferedImage getImage() {
-        return image;
+        return originalImage;
     }
 
     public void setShowROI(boolean showROI) {
         this.showROI = showROI;
+        renderOffscreen();
         repaint();
     }
 
@@ -58,18 +61,21 @@ public class ImageComponent extends JComponent {
         } else {
             verticalROI = rect;
         }
+        renderOffscreen();
         repaint();
     }
 
-    @Override
-    protected void paintComponent(Graphics g) {
-        if (image != null) {
-            Graphics2D g2 = (Graphics2D) g;
-            g2.scale(((double) this.getWidth()) / image.getWidth(), -((double) this.getHeight()) / image.getHeight());
-            g2.translate(0, -image.getHeight());
-            Timed.execute(
-                    () -> g.drawImage(image, 0, 0, ImageComponent.this),
-                    "Paint image of type %d and size %dx%d took %dms", image.getType(), image.getWidth(), image.getHeight()
+    void renderOffscreen() {
+        if (volatileImage == null || volatileImage.validate(getGraphicsConfiguration()) == VolatileImage.IMAGE_INCOMPATIBLE) {
+            // old vImg doesn't work with new GraphicsConfig; re-create it
+            volatileImage = createVolatileImage(this.getWidth(), this.getHeight());
+        }
+        if (originalImage != null && volatileImage != null) {
+            Graphics2D g2 = volatileImage.createGraphics();
+            g2.scale(((double) this.getWidth()) / originalImage.getWidth(), -((double) this.getHeight()) / originalImage.getHeight());
+            g2.translate(0, -originalImage.getHeight());
+            Timed.execute(() -> g2.drawImage(originalImage, 0, 0, null),
+                    "Offscreen paint image of type %d and size %dx%d took %dms", originalImage.getType(), originalImage.getWidth(), originalImage.getHeight()
             );
             if (showROI) {
                 if (horizontalROI != null) {
@@ -81,8 +87,33 @@ public class ImageComponent extends JComponent {
                     g2.fill(verticalROI);
                 }
             }
+            g2.dispose();
         }
-    }    
+    }
+
+    @Override
+    protected void paintComponent(Graphics g) {
+            do {
+                int returnCode;
+                if (volatileImage == null) {
+                    returnCode = VolatileImage.IMAGE_INCOMPATIBLE;
+                } else if (volatileImage.getWidth() != this.getWidth() || volatileImage.getHeight() != this.getHeight()) {
+                    returnCode = VolatileImage.IMAGE_INCOMPATIBLE;     
+                } else {
+                    returnCode = volatileImage.validate(getGraphicsConfiguration());
+                }
+
+                if (returnCode == VolatileImage.IMAGE_RESTORED) {
+                    // Contents need to be restored
+                    renderOffscreen();      // restore contents
+                } else if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
+                    // old vImg doesn't work with new GraphicsConfig; re-create it
+                    volatileImage = createVolatileImage(this.getWidth(), this.getHeight());
+                    renderOffscreen();
+                }
+                g.drawImage(volatileImage, 0, 0, this);
+            } while (volatileImage.contentsLost());
+    }
 
     public Color getVerticalColor() {
         return verticalColor;
@@ -100,7 +131,7 @@ public class ImageComponent extends JComponent {
         this.horizontalColor = deriveAlpha(horizontalColor);
     }
 
-   private static Color deriveAlpha(Color color) {
+    private static Color deriveAlpha(Color color) {
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), 128);
     }
 }
