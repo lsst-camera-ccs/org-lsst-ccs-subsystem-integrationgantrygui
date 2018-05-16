@@ -207,7 +207,7 @@ public class Main {
     private void handleJSONFile(String fileName, Path fullPath) {
         boolean isHorizontal = fileName.contains("horiz");
         try {
-            Map<String, List<Integer>> rois = parser.parseROI(Files.readAllLines(fullPath));
+            Map<String, List<Number>> rois = parser.parseROI(Files.readAllLines(fullPath));
             rois.forEach((t, u) -> {
                 int index = Integer.parseInt(t);
                 int mappedIndex = cameraMap.get(index);

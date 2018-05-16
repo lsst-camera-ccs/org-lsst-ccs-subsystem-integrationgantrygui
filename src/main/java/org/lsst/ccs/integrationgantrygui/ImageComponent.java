@@ -4,7 +4,9 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.util.List;
@@ -20,12 +22,14 @@ public class ImageComponent extends JComponent {
     private static final long serialVersionUID = 1L;
 
     private BufferedImage originalImage;
-    private Rectangle horizontalROI;
-    private Rectangle verticalROI;
+    private Rectangle.Double horizontalROI;
+    private Rectangle.Double verticalROI;
     private boolean showROI = true;
+    private boolean zoomToROI = false;
     private Color verticalColor = new Color(1f, 0f, 0f, 0.5f);
     private Color horizontalColor = new Color(1f, 0f, 0f, 0.5f);
     private VolatileImage volatileImage;
+    private Rectangle.Double zoomRegion;
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public ImageComponent() {
@@ -54,13 +58,34 @@ public class ImageComponent extends JComponent {
         repaint();
     }
 
-    void setROI(boolean horizontal, List<Integer> roi) {
-        Rectangle rect = new Rectangle(roi.get(0), roi.get(1), roi.get(2) - roi.get(0), roi.get(3) - roi.get(1));
+    void setROI(boolean horizontal, List<Number> roi) {
+        Rectangle.Double rect = new Rectangle.Double(
+                roi.get(0).doubleValue(),
+                roi.get(1).doubleValue(),
+                roi.get(2).doubleValue() - roi.get(0).doubleValue(),
+                roi.get(3).doubleValue() - roi.get(1).doubleValue());
         if (horizontal) {
             horizontalROI = rect;
         } else {
             verticalROI = rect;
         }
+        Rectangle.Double zoom = null;
+        if (horizontalROI != null && verticalROI != null) {
+            zoom = new Rectangle.Double();
+            Rectangle2D.union(horizontalROI, verticalROI, zoom);
+        } else if (horizontalROI != null) {
+            zoom = horizontalROI;
+        } else if (verticalROI != null) {
+            zoom = verticalROI;
+        }
+        if (zoom != null) {
+            Point.Double border = new Point.Double(0.10 * zoom.width, 0.10 * zoom.height);
+            zoomRegion = new Rectangle.Double(zoom.x - border.x, zoom.y - border.y,
+                    zoom.width + 2 * border.x, zoom.height + 2 * border.y);
+        } else {
+            zoomRegion = null;
+        }
+        System.out.println(zoomRegion);
         renderOffscreen();
         repaint();
     }
@@ -72,8 +97,14 @@ public class ImageComponent extends JComponent {
         }
         if (originalImage != null && volatileImage != null) {
             Graphics2D g2 = volatileImage.createGraphics();
-            g2.scale(((double) this.getWidth()) / originalImage.getWidth(), -((double) this.getHeight()) / originalImage.getHeight());
-            g2.translate(0, -originalImage.getHeight());
+            if (zoomToROI && zoomRegion != null) {
+                //g2.translate(-zoomRegion.x, zoomRegion.y);
+                g2.scale(this.getWidth() / zoomRegion.getWidth(), -this.getHeight() / zoomRegion.getHeight());
+                g2.translate(0, -zoomRegion.getHeight());
+            } else {
+                g2.scale(((double) this.getWidth()) / originalImage.getWidth(), -((double) this.getHeight()) / originalImage.getHeight());
+                g2.translate(0, -originalImage.getHeight());
+            }
             Timed.execute(() -> g2.drawImage(originalImage, 0, 0, null),
                     "Offscreen paint image of type %d and size %dx%d took %dms", originalImage.getType(), originalImage.getWidth(), originalImage.getHeight()
             );
@@ -86,6 +117,9 @@ public class ImageComponent extends JComponent {
                     g2.setColor(verticalColor);
                     g2.fill(verticalROI);
                 }
+//                if (zoomToROI && zoomRegion != null) {
+//                    g2.fill(zoomRegion);
+//                }
             }
             g2.dispose();
         }
@@ -95,7 +129,7 @@ public class ImageComponent extends JComponent {
     protected void paintComponent(Graphics g) {
         do {
             int returnCode;
-                if (volatileImage == null) {
+            if (volatileImage == null) {
                 returnCode = VolatileImage.IMAGE_INCOMPATIBLE;
             } else if (volatileImage.getWidth() != this.getWidth() || volatileImage.getHeight() != this.getHeight()) {
                 returnCode = VolatileImage.IMAGE_INCOMPATIBLE;
@@ -114,7 +148,7 @@ public class ImageComponent extends JComponent {
             Timed.execute(() -> g.drawImage(volatileImage, 0, 0, this),
                     "paint image of size %dx%d took %dms", volatileImage.getWidth(), volatileImage.getHeight()
             );
-            
+
         } while (volatileImage.contentsLost());
     }
 
@@ -136,5 +170,11 @@ public class ImageComponent extends JComponent {
 
     private static Color deriveAlpha(Color color) {
         return new Color(color.getRed(), color.getGreen(), color.getBlue(), 128);
+    }
+
+    void setZoomToROI(boolean zoom) {
+        this.zoomToROI = zoom;
+        renderOffscreen();
+        repaint();
     }
 }

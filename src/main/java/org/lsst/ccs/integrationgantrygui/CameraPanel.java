@@ -113,11 +113,15 @@ public class CameraPanel extends javax.swing.JPanel {
         return formatNumber(d,"");
     }
     
-    void setROI(boolean horizontal, List<Integer> roi) {
+    void setROI(boolean horizontal, List<Number> roi) {
         imageComponent.setROI(horizontal, roi);
     }
 
     void setShowROI(boolean showROI) {
         imageComponent.setShowROI(showROI);
+    }
+    
+    void setZoomToROI(boolean zoom) {
+        imageComponent.setZoomToROI(zoom);
     }
 }

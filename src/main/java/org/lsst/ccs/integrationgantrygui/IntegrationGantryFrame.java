@@ -60,7 +60,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         });
     }
 
-    void setROI(boolean horizontal, int index, List<Integer> roi) {
+    void setROI(boolean horizontal, int index, List<Number> roi) {
         cameraPanels[index].setROI(horizontal, roi);
     }
 
@@ -78,6 +78,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         fpsTextBox = new javax.swing.JTextField();
         javax.swing.JLabel jLabel5 = new javax.swing.JLabel();
         javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
+        zoomCheckBox = new javax.swing.JCheckBox();
         coordinatePanel = new javax.swing.JPanel();
         imagePanel = new javax.swing.JPanel();
         cameraPanel1 = new org.lsst.ccs.integrationgantrygui.CameraPanel();
@@ -113,6 +114,13 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
 
         jLabel6.setText("Image scaling:");
 
+        zoomCheckBox.setText("Zoom to ROI");
+        zoomCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                zoomCheckBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -122,7 +130,9 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
                 .addComponent(jLabel6)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(displayComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 350, Short.MAX_VALUE)
+                .addGap(18, 18, 18)
+                .addComponent(zoomCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 176, Short.MAX_VALUE)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(fpsTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -134,7 +144,8 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
                     .addComponent(displayComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(fpsTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5)
-                    .addComponent(jLabel6))
+                    .addComponent(jLabel6)
+                    .addComponent(zoomCheckBox))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -302,6 +313,12 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         cameraPanelMouseClicked(evt, 3);
     }//GEN-LAST:event_cameraPanel4MouseClicked
 
+    private void zoomCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_zoomCheckBoxActionPerformed
+        for (CameraPanel panel : cameraPanels) {
+            panel.setZoomToROI(zoomCheckBox.isSelected());
+        }
+    }//GEN-LAST:event_zoomCheckBoxActionPerformed
+
     private void cameraPanelMouseClicked(java.awt.event.MouseEvent evt, int position) {
         if (evt.getClickCount() == 2) {
             Component clickedPanel = evt.getComponent();
@@ -366,6 +383,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private javax.swing.JLabel topCoordinateLabel;
     private javax.swing.JCheckBoxMenuItem viewCoordinatesMenuItem;
     private javax.swing.JMenu viewMenu;
+    private javax.swing.JCheckBox zoomCheckBox;
     // End of variables declaration//GEN-END:variables
 
 }

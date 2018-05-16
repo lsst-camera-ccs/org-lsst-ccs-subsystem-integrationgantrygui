@@ -24,13 +24,13 @@ public class JSONParser {
         return engine.eval(script);
     }
     
-    public Map<String, List<Integer>> parseROI(List<String> json) throws ScriptException {
-        return json.isEmpty() ?  Collections.EMPTY_MAP : (Map<String, List<Integer>>) parse(json);
+    public Map<String, List<Number>> parseROI(List<String> json) throws ScriptException {
+        return json.isEmpty() ?  Collections.EMPTY_MAP : (Map<String, List<Number>>) parse(json);
     }
     
     public static void main(String[] args) throws ScriptException {
         JSONParser parser = new JSONParser();
-        Map<String, List<Integer>> roi = parser.parseROI(Collections.singletonList("{\"1\": [240, 339, 1120, 1520], \"0\": [400, 499, 1120, 1520], \"3\": [240, 339, 1120, 1520], \"2\": [400, 499, 1120, 1520]}"));
+        Map<String, List<Number>> roi = parser.parseROI(Collections.singletonList("{\"1\": [240, 339, 1120, 1520], \"0\": [400, 499, 1120, 1520.7], \"3\": [240, 339, 1120, 1520], \"2\": [400, 499, 1120, 1520]}"));
         System.out.println(roi);
     }
 }
