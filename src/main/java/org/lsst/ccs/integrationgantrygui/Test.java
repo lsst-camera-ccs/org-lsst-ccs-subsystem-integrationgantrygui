@@ -43,8 +43,8 @@ public class Test {
                 } 
             });
             // Write the .txt files to simulate Seth's data analysis
-            String date = df.format(new Date());
-            List<String> lines = Collections.singletonList(date);
+            String data = "horiz 100 200 | vert 100 200";
+            List<String> lines = Collections.singletonList(data);
             for (int i=0; i<4; i++) {
                 Path path = dest.resolve(Paths.get(String.format("xxx%d_rng0000.txt",i)));
                 Files.deleteIfExists(path);

@@ -6,6 +6,7 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.geom.Line2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
@@ -30,6 +31,11 @@ public class ImageComponent extends JComponent {
     private Color horizontalColor = new Color(1f, 0f, 0f, 0.5f);
     private VolatileImage volatileImage;
     private Rectangle.Double zoomRegion;
+    private boolean showEdges = true;
+    private double hEdge1;
+    private double hEdge2;
+    private double vEdge1;
+    private double vEdge2;
 
     @SuppressWarnings("OverridableMethodCallInConstructor")
     public ImageComponent() {
@@ -56,6 +62,19 @@ public class ImageComponent extends JComponent {
         this.showROI = showROI;
         renderOffscreen();
         repaint();
+    }
+
+    void setShowEdges(boolean show) {
+        this.showEdges = show;
+        renderOffscreen();
+        repaint();
+    }
+
+    void setEdges(double hEdge1, double hEdge2, double vEdge1, double vEdge2) {
+        this.hEdge1 = hEdge1;
+        this.hEdge2 = hEdge2;
+        this.vEdge1 = vEdge1;
+        this.vEdge2 = vEdge2;
     }
 
     void setROI(boolean horizontal, List<Number> roi) {
@@ -98,8 +117,8 @@ public class ImageComponent extends JComponent {
         if (originalImage != null && volatileImage != null) {
             Graphics2D g2 = volatileImage.createGraphics();
             if (zoomToROI && zoomRegion != null) {
-                //g2.translate(-zoomRegion.x, zoomRegion.y);
                 g2.scale(this.getWidth() / zoomRegion.getWidth(), -this.getHeight() / zoomRegion.getHeight());
+                g2.translate(-zoomRegion.x, -zoomRegion.y);
                 g2.translate(0, -zoomRegion.getHeight());
             } else {
                 g2.scale(((double) this.getWidth()) / originalImage.getWidth(), -((double) this.getHeight()) / originalImage.getHeight());
@@ -112,14 +131,31 @@ public class ImageComponent extends JComponent {
                 if (horizontalROI != null) {
                     g2.setColor(horizontalColor);
                     g2.fill(horizontalROI);
+                    if (showEdges) {
+                        Line2D.Double line1 = new Line2D.Double(
+                                horizontalROI.x + hEdge1, horizontalROI.y,
+                                horizontalROI.x + hEdge1, horizontalROI.y + horizontalROI.height);
+                        g2.draw(line1);
+                        Line2D.Double line2 = new Line2D.Double(
+                                horizontalROI.x + hEdge2, horizontalROI.y,
+                                horizontalROI.x + hEdge2, horizontalROI.y + horizontalROI.height);
+                        g2.draw(line2);
+                    }
                 }
                 if (verticalROI != null) {
                     g2.setColor(verticalColor);
                     g2.fill(verticalROI);
+                    if (showEdges) {
+                        Line2D.Double line1 = new Line2D.Double(
+                                verticalROI.x, verticalROI.y + vEdge1,
+                                verticalROI.x + verticalROI.width, verticalROI.y + vEdge1);
+                        g2.draw(line1);
+                        Line2D.Double line2 = new Line2D.Double(
+                                verticalROI.x , verticalROI.y + vEdge2,
+                                verticalROI.x + verticalROI.width, verticalROI.y + vEdge2);
+                        g2.draw(line2);
+                    }
                 }
-//                if (zoomToROI && zoomRegion != null) {
-//                    g2.fill(zoomRegion);
-//                }
             }
             g2.dispose();
         }

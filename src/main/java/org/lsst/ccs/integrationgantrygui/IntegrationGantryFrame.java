@@ -79,6 +79,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         javax.swing.JLabel jLabel5 = new javax.swing.JLabel();
         javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
         zoomCheckBox = new javax.swing.JCheckBox();
+        showEdgesCheckBox = new javax.swing.JCheckBox();
         coordinatePanel = new javax.swing.JPanel();
         imagePanel = new javax.swing.JPanel();
         cameraPanel1 = new org.lsst.ccs.integrationgantrygui.CameraPanel();
@@ -95,6 +96,8 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         viewMenu = new javax.swing.JMenu();
         viewCoordinatesMenuItem = new javax.swing.JCheckBoxMenuItem();
         showROIMenuItem = new javax.swing.JCheckBoxMenuItem();
+        zoomToROIMenuItem = new javax.swing.JCheckBoxMenuItem();
+        showEdgesMenuItem = new javax.swing.JCheckBoxMenuItem();
         imageScalingMenu = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -121,6 +124,14 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
             }
         });
 
+        showEdgesCheckBox.setSelected(true);
+        showEdgesCheckBox.setText("Show Edges");
+        showEdgesCheckBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showEdgesCheckBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -132,7 +143,9 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
                 .addComponent(displayComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(zoomCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 176, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(showEdgesCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(fpsTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -145,7 +158,8 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
                     .addComponent(fpsTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jLabel5)
                     .addComponent(jLabel6)
-                    .addComponent(zoomCheckBox))
+                    .addComponent(zoomCheckBox)
+                    .addComponent(showEdgesCheckBox))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -246,6 +260,17 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         });
         viewMenu.add(showROIMenuItem);
 
+        zoomToROIMenuItem.setSelected(true);
+        zoomToROIMenuItem.setText("Zoom to ROI");
+        zoomToROIMenuItem.setModel(zoomCheckBox.getModel());
+        viewMenu.add(zoomToROIMenuItem);
+
+        showEdgesMenuItem.setSelected(true);
+        showEdgesMenuItem.setText("Show Edges");
+        showEdgesMenuItem.setModel(showEdgesCheckBox.getModel()
+        );
+        viewMenu.add(showEdgesMenuItem);
+
         imageScalingMenu.setText("Image Scaling");
         viewMenu.add(imageScalingMenu);
 
@@ -319,6 +344,12 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_zoomCheckBoxActionPerformed
 
+    private void showEdgesCheckBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showEdgesCheckBoxActionPerformed
+        for (CameraPanel panel : cameraPanels) {
+            panel.setShowEdges(showEdgesCheckBox.isSelected());
+        }
+    }//GEN-LAST:event_showEdgesCheckBoxActionPerformed
+
     private void cameraPanelMouseClicked(java.awt.event.MouseEvent evt, int position) {
         if (evt.getClickCount() == 2) {
             Component clickedPanel = evt.getComponent();
@@ -379,11 +410,14 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JLabel leftCoordinateLabel;
     private javax.swing.JLabel rightCoordinateLabel;
+    private javax.swing.JCheckBox showEdgesCheckBox;
+    private javax.swing.JCheckBoxMenuItem showEdgesMenuItem;
     private javax.swing.JCheckBoxMenuItem showROIMenuItem;
     private javax.swing.JLabel topCoordinateLabel;
     private javax.swing.JCheckBoxMenuItem viewCoordinatesMenuItem;
     private javax.swing.JMenu viewMenu;
     private javax.swing.JCheckBox zoomCheckBox;
+    private javax.swing.JCheckBoxMenuItem zoomToROIMenuItem;
     // End of variables declaration//GEN-END:variables
 
 }

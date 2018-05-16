@@ -103,6 +103,7 @@ public class CameraPanel extends javax.swing.JPanel {
         v2TextField.setText(formatNumber(v2));
         hGapTextField.setText(formatNumber((h2-h1)*25,"μm"));
         vGapTextField.setText(formatNumber((v2-v1)*25,"μm"));
+        imageComponent.setEdges(h1, h2, v1, v2);
     }
 
     private static String formatNumber(double d, String units) {
@@ -123,5 +124,9 @@ public class CameraPanel extends javax.swing.JPanel {
     
     void setZoomToROI(boolean zoom) {
         imageComponent.setZoomToROI(zoom);
+    }
+    
+    void setShowEdges(boolean show) {
+        imageComponent.setShowEdges(show);
     }
 }
