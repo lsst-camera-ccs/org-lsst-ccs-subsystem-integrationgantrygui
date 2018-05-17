@@ -133,12 +133,12 @@ public class ImageComponent extends JComponent {
                     g2.fill(horizontalROI);
                     if (showEdges) {
                         Line2D.Double line1 = new Line2D.Double(
-                                horizontalROI.x + hEdge1, horizontalROI.y,
-                                horizontalROI.x + hEdge1, horizontalROI.y + horizontalROI.height);
+                                horizontalROI.x, horizontalROI.y + hEdge1,
+                                horizontalROI.x + horizontalROI.width, horizontalROI.y + hEdge1);
                         g2.draw(line1);
                         Line2D.Double line2 = new Line2D.Double(
-                                horizontalROI.x + hEdge2, horizontalROI.y,
-                                horizontalROI.x + hEdge2, horizontalROI.y + horizontalROI.height);
+                                horizontalROI.x, horizontalROI.y + hEdge2,
+                                horizontalROI.x + horizontalROI.width, horizontalROI.y + hEdge2);
                         g2.draw(line2);
                     }
                 }
@@ -147,12 +147,12 @@ public class ImageComponent extends JComponent {
                     g2.fill(verticalROI);
                     if (showEdges) {
                         Line2D.Double line1 = new Line2D.Double(
-                                verticalROI.x, verticalROI.y + vEdge1,
-                                verticalROI.x + verticalROI.width, verticalROI.y + vEdge1);
+                                verticalROI.x + vEdge1, verticalROI.y,
+                                verticalROI.x + vEdge1, verticalROI.y + verticalROI.height);
                         g2.draw(line1);
                         Line2D.Double line2 = new Line2D.Double(
-                                verticalROI.x , verticalROI.y + vEdge2,
-                                verticalROI.x + verticalROI.width, verticalROI.y + vEdge2);
+                                verticalROI.x + vEdge2, verticalROI.y,
+                                verticalROI.x + vEdge2, verticalROI.y + verticalROI.width);
                         g2.draw(line2);
                     }
                 }
