@@ -152,7 +152,7 @@ public class ImageComponent extends JComponent {
                         g2.draw(line1);
                         Line2D.Double line2 = new Line2D.Double(
                                 verticalROI.x + vEdge2, verticalROI.y,
-                                verticalROI.x + vEdge2, verticalROI.y + verticalROI.width);
+                                verticalROI.x + vEdge2, verticalROI.y + verticalROI.height);
                         g2.draw(line2);
                     }
                 }
