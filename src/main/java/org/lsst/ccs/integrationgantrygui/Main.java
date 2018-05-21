@@ -33,9 +33,8 @@ public class Main {
 
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
     private final Path watchDir = Paths.get(System.getProperty("watchDir", "/mnt/ramdisk"));
-    private final Pattern watchPattern = Pattern.compile(System.getProperty("watchPattern", ".+(\\d)_rng\\d+.*"));
+    private final Pattern watchPattern = Pattern.compile(System.getProperty("watchPattern", "[a-z|A-Z|_]+(\\d)_rng\\d+.*"));
     private final Pattern textPattern = Pattern.compile("((horiz)?\\s*((\\d|\\.)*)?\\s*((\\d|\\.)*)?.*)\\s+\\|\\s+((vert)?\\s*((\\d|\\.)*)?\\s*((\\d|\\.)*)?.*)");
-
     private final Map<Integer, Integer> cameraMap = new HashMap<>();
     private int totalFiles = 0;
     private int processFiles = 0;
