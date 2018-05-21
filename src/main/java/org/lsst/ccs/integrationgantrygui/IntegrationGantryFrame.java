@@ -99,6 +99,8 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         zoomToROIMenuItem = new javax.swing.JCheckBoxMenuItem();
         showEdgesMenuItem = new javax.swing.JCheckBoxMenuItem();
         imageScalingMenu = new javax.swing.JMenu();
+        showGridMenuItem = new javax.swing.JCheckBoxMenuItem();
+        presevereAspectRatioMenuItem = new javax.swing.JCheckBoxMenuItem();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Integration Gantry Cameras");
@@ -274,6 +276,24 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         imageScalingMenu.setText("Image Scaling");
         viewMenu.add(imageScalingMenu);
 
+        showGridMenuItem.setSelected(true);
+        showGridMenuItem.setText("Show Grid");
+        showGridMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                showGridMenuItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(showGridMenuItem);
+
+        presevereAspectRatioMenuItem.setSelected(true);
+        presevereAspectRatioMenuItem.setText("Preserve Aspect Ratio");
+        presevereAspectRatioMenuItem.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                presevereAspectRatioMenuItemActionPerformed(evt);
+            }
+        });
+        viewMenu.add(presevereAspectRatioMenuItem);
+
         jMenuBar1.add(viewMenu);
 
         setJMenuBar(jMenuBar1);
@@ -350,6 +370,20 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_showEdgesCheckBoxActionPerformed
 
+    private void showGridMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showGridMenuItemActionPerformed
+        for (CameraPanel panel : cameraPanels) {
+            panel.setShowGrid(showGridMenuItem.isSelected());
+        }        
+    }//GEN-LAST:event_showGridMenuItemActionPerformed
+
+    private void presevereAspectRatioMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_presevereAspectRatioMenuItemActionPerformed
+        for (CameraPanel panel : cameraPanels) {
+            panel.setPreserveAspectRatio(presevereAspectRatioMenuItem.isSelected());
+        }  
+    }//GEN-LAST:event_presevereAspectRatioMenuItemActionPerformed
+
+    
+    
     private void cameraPanelMouseClicked(java.awt.event.MouseEvent evt, int position) {
         if (evt.getClickCount() == 2) {
             Component clickedPanel = evt.getComponent();
@@ -409,9 +443,11 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private javax.swing.JMenu imageScalingMenu;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JLabel leftCoordinateLabel;
+    private javax.swing.JCheckBoxMenuItem presevereAspectRatioMenuItem;
     private javax.swing.JLabel rightCoordinateLabel;
     private javax.swing.JCheckBox showEdgesCheckBox;
     private javax.swing.JCheckBoxMenuItem showEdgesMenuItem;
+    private javax.swing.JCheckBoxMenuItem showGridMenuItem;
     private javax.swing.JCheckBoxMenuItem showROIMenuItem;
     private javax.swing.JLabel topCoordinateLabel;
     private javax.swing.JCheckBoxMenuItem viewCoordinatesMenuItem;

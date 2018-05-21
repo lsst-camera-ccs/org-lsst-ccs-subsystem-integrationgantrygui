@@ -1,12 +1,15 @@
 package org.lsst.ccs.integrationgantrygui;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
 import java.awt.Rectangle;
+import java.awt.Stroke;
 import java.awt.geom.Line2D;
+import java.awt.geom.Path2D;
 import java.awt.geom.Rectangle2D;
 import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
@@ -29,6 +32,12 @@ public class ImageComponent extends JComponent {
     private boolean zoomToROI = false;
     private Color verticalColor = new Color(1f, 0f, 0f, 0.5f);
     private Color horizontalColor = new Color(1f, 0f, 0f, 0.5f);
+    private Color edgeColor = Color.RED;
+    private boolean preserveAspectRatio = true;
+    private boolean showGrid = true;
+    private Color gridColor = Color.BLACK;
+    private Stroke gridStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, new float[]{10.0f, 20.0f}, 0.0f);
+    private int gridSize = 400;
     private VolatileImage volatileImage;
     private Rectangle.Double zoomRegion;
     private boolean showEdges = true;
@@ -104,7 +113,6 @@ public class ImageComponent extends JComponent {
         } else {
             zoomRegion = null;
         }
-        System.out.println(zoomRegion);
         renderOffscreen();
         repaint();
     }
@@ -116,12 +124,26 @@ public class ImageComponent extends JComponent {
         }
         if (originalImage != null && volatileImage != null) {
             Graphics2D g2 = volatileImage.createGraphics();
+            if (preserveAspectRatio) {
+                g2.setColor(getBackground());
+                g2.fillRect(0, 0, getWidth(), getHeight());
+            }
             if (zoomToROI && zoomRegion != null) {
-                g2.scale(this.getWidth() / zoomRegion.getWidth(), -this.getHeight() / zoomRegion.getHeight());
+                double hScale = this.getWidth() / zoomRegion.getWidth();
+                double vScale = this.getHeight() / zoomRegion.getHeight();
+                if (preserveAspectRatio) {
+                    vScale = hScale = Math.min(hScale, vScale);
+                }
+                g2.scale(hScale, -vScale);
                 g2.translate(-zoomRegion.x, -zoomRegion.y);
                 g2.translate(0, -zoomRegion.getHeight());
             } else {
-                g2.scale(((double) this.getWidth()) / originalImage.getWidth(), -((double) this.getHeight()) / originalImage.getHeight());
+                double hScale = ((double) getWidth()) / originalImage.getWidth();
+                double vScale = ((double) getHeight()) / originalImage.getHeight();
+                if (preserveAspectRatio) {
+                    vScale = hScale = Math.min(hScale, vScale);
+                }
+                g2.scale(hScale, -vScale);
                 g2.translate(0, -originalImage.getHeight());
             }
             Timed.execute(() -> g2.drawImage(originalImage, 0, 0, null),
@@ -132,6 +154,7 @@ public class ImageComponent extends JComponent {
                     g2.setColor(horizontalColor);
                     g2.fill(horizontalROI);
                     if (showEdges) {
+                        g2.setColor(edgeColor);
                         Line2D.Double line1 = new Line2D.Double(
                                 horizontalROI.x, horizontalROI.y + hEdge1,
                                 horizontalROI.x + horizontalROI.width, horizontalROI.y + hEdge1);
@@ -146,6 +169,7 @@ public class ImageComponent extends JComponent {
                     g2.setColor(verticalColor);
                     g2.fill(verticalROI);
                     if (showEdges) {
+                        g2.setColor(edgeColor);
                         Line2D.Double line1 = new Line2D.Double(
                                 verticalROI.x + vEdge1, verticalROI.y,
                                 verticalROI.x + vEdge1, verticalROI.y + verticalROI.height);
@@ -156,6 +180,21 @@ public class ImageComponent extends JComponent {
                         g2.draw(line2);
                     }
                 }
+            }
+            if (showGrid) {
+                Path2D.Double grid = new Path2D.Double();
+                for (double x = 0; x < originalImage.getWidth(); x += gridSize) {
+                    grid.moveTo(x, 0);
+                    grid.lineTo(x, originalImage.getHeight());
+                }
+                for (double y = 0; y < originalImage.getHeight(); y += gridSize) {
+                    grid.moveTo(0, y);
+                    grid.lineTo(originalImage.getWidth(), y);
+                }
+                g2.setColor(gridColor);
+                g2.setXORMode(getBackground());
+                g2.setStroke(gridStroke);
+                g2.draw(grid);
             }
             g2.dispose();
         }
@@ -202,6 +241,36 @@ public class ImageComponent extends JComponent {
 
     public void setHorizontalColor(Color horizontalColor) {
         this.horizontalColor = deriveAlpha(horizontalColor);
+    }
+
+    public Color getEdgeColor() {
+        return edgeColor;
+    }
+
+    public void setEdgeColor(Color edgeColor) {
+        this.edgeColor = edgeColor;
+        renderOffscreen();
+        repaint();
+    }
+
+    public boolean isPreserveAspectRatio() {
+        return preserveAspectRatio;
+    }
+
+    public void setPreserveAspectRatio(boolean preserveAspectRatio) {
+        this.preserveAspectRatio = preserveAspectRatio;
+        renderOffscreen();
+        repaint();
+    }
+
+    public boolean isShowGrid() {
+        return showGrid;
+    }
+
+    public void setShowGrid(boolean showGrid) {
+        this.showGrid = showGrid;
+        renderOffscreen();
+        repaint();
     }
 
     private static Color deriveAlpha(Color color) {

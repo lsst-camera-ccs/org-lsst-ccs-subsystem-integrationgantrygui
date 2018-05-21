@@ -101,19 +101,19 @@ public class CameraPanel extends javax.swing.JPanel {
         h2TextField.setText(formatNumber(h2));
         v1TextField.setText(formatNumber(v1));
         v2TextField.setText(formatNumber(v2));
-        hGapTextField.setText(formatNumber((h2-h1)*25,"μm"));
-        vGapTextField.setText(formatNumber((v2-v1)*25,"μm"));
+        hGapTextField.setText(formatNumber((h2 - h1) * 25, "μm"));
+        vGapTextField.setText(formatNumber((v2 - v1) * 25, "μm"));
         imageComponent.setEdges(h1, h2, v1, v2);
     }
 
     private static String formatNumber(double d, String units) {
-        return Double.isNaN(d) ? "" : String.format("%4.4g%s",d, units);
+        return Double.isNaN(d) ? "" : String.format("%4.4g%s", d, units);
     }
 
     private static String formatNumber(double d) {
-        return formatNumber(d,"");
+        return formatNumber(d, "");
     }
-    
+
     void setROI(boolean horizontal, List<Number> roi) {
         imageComponent.setROI(horizontal, roi);
     }
@@ -121,12 +121,20 @@ public class CameraPanel extends javax.swing.JPanel {
     void setShowROI(boolean showROI) {
         imageComponent.setShowROI(showROI);
     }
-    
+
     void setZoomToROI(boolean zoom) {
         imageComponent.setZoomToROI(zoom);
     }
-    
+
     void setShowEdges(boolean show) {
         imageComponent.setShowEdges(show);
+    }
+
+    void setShowGrid(boolean show) {
+        imageComponent.setShowGrid(show);
+    }
+
+    void setPreserveAspectRatio(boolean selected) {
+        imageComponent.setPreserveAspectRatio(selected);
     }
 }
