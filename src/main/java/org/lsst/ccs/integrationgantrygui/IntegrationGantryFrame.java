@@ -25,6 +25,28 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private ScalableImageProvider.Scaling scaling = ScalableImageProvider.Scaling.LOG;
     private final JLabel[] axes;
 
+    private enum GridSize {
+        ONE_CM("1cm", 400), FIVE_MM("5mm", 200), TWO_MM("2mm", 80), ONE_MM("1mm", 40);
+        private final int size;
+        private final String text;
+
+        GridSize(String name, int size) {
+            this.text = name;
+            this.size = size;
+        }
+
+        public int getSize() {
+            return size;
+        }
+
+        @Override
+        public String toString() {
+            return text;
+        }
+
+    }
+    private GridSize gridSize = GridSize.ONE_CM;
+
     /**
      * Creates new form IntegrationGantryFrame
      */
@@ -39,6 +61,17 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
             menuItem.addActionListener((evt) -> setScaling(scale));
         }
         displayComboBox.setSelectedItem(scaling);
+
+        gridSizeComboBox.setModel(new DefaultComboBoxModel(GridSize.values()));
+        ButtonGroup gridSizeGroup = new ButtonGroup();
+        for (GridSize gs : GridSize.values()) {
+            final JRadioButtonMenuItem menuItem = new JRadioButtonMenuItem(gs.toString(), gs == gridSize);
+            gridSizeGroup.add(menuItem);
+            gridSizeMenu.add(menuItem);
+            menuItem.addActionListener((evt) -> setGridSize(gs));
+        }
+        gridSizeComboBox.setSelectedItem(gridSize);
+
         cameraPanels = new CameraPanel[]{cameraPanel1, cameraPanel2, cameraPanel3, cameraPanel4};
         axes = new JLabel[]{topCoordinateLabel, bottomCoordinateLabel, rightCoordinateLabel, leftCoordinateLabel};
         imageProvider = new ScalableImageProvider[4];
@@ -50,7 +83,7 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     }
 
     void setLabel(int i, double h1, double h2, double v1, double v2) {
-        cameraPanels[i].setLabels(h1,h2,v1,v2);
+        cameraPanels[i].setLabels(h1, h2, v1, v2);
     }
 
     void setFPS(int fps) {
@@ -80,6 +113,9 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         javax.swing.JLabel jLabel6 = new javax.swing.JLabel();
         zoomCheckBox = new javax.swing.JCheckBox();
         showEdgesCheckBox = new javax.swing.JCheckBox();
+        showGridCheckBox = new javax.swing.JCheckBox();
+        jLabel1 = new javax.swing.JLabel();
+        gridSizeComboBox = new javax.swing.JComboBox<>();
         coordinatePanel = new javax.swing.JPanel();
         imagePanel = new javax.swing.JPanel();
         cameraPanel1 = new org.lsst.ccs.integrationgantrygui.CameraPanel();
@@ -98,9 +134,10 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         showROIMenuItem = new javax.swing.JCheckBoxMenuItem();
         zoomToROIMenuItem = new javax.swing.JCheckBoxMenuItem();
         showEdgesMenuItem = new javax.swing.JCheckBoxMenuItem();
-        imageScalingMenu = new javax.swing.JMenu();
         showGridMenuItem = new javax.swing.JCheckBoxMenuItem();
         presevereAspectRatioMenuItem = new javax.swing.JCheckBoxMenuItem();
+        imageScalingMenu = new javax.swing.JMenu();
+        gridSizeMenu = new javax.swing.JMenu();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Integration Gantry Cameras");
@@ -134,6 +171,17 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
             }
         });
 
+        showGridCheckBox.setModel(showGridMenuItem.getModel());
+        showGridCheckBox.setText("Show Grid");
+
+        jLabel1.setText("Grid Size:");
+
+        gridSizeComboBox.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                gridSizeComboBoxActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
         jPanel6Layout.setHorizontalGroup(
@@ -147,7 +195,13 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
                 .addComponent(zoomCheckBox)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(showEdgesCheckBox)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(showGridCheckBox)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jLabel1)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(gridSizeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 586, Short.MAX_VALUE)
                 .addComponent(jLabel5)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(fpsTextBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
@@ -161,7 +215,10 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
                     .addComponent(jLabel5)
                     .addComponent(jLabel6)
                     .addComponent(zoomCheckBox)
-                    .addComponent(showEdgesCheckBox))
+                    .addComponent(showEdgesCheckBox)
+                    .addComponent(showGridCheckBox)
+                    .addComponent(jLabel1)
+                    .addComponent(gridSizeComboBox, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
 
@@ -273,9 +330,6 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
         );
         viewMenu.add(showEdgesMenuItem);
 
-        imageScalingMenu.setText("Image Scaling");
-        viewMenu.add(imageScalingMenu);
-
         showGridMenuItem.setSelected(true);
         showGridMenuItem.setText("Show Grid");
         showGridMenuItem.addActionListener(new java.awt.event.ActionListener() {
@@ -293,6 +347,12 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
             }
         });
         viewMenu.add(presevereAspectRatioMenuItem);
+
+        imageScalingMenu.setText("Image Scaling");
+        viewMenu.add(imageScalingMenu);
+
+        gridSizeMenu.setText("Grid Size");
+        viewMenu.add(gridSizeMenu);
 
         jMenuBar1.add(viewMenu);
 
@@ -315,13 +375,30 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
                     ((JMenuItem) c).setSelected(true);
                 }
             }
-            
+
             for (int i = 0; i < 4; i++) {
                 if (cameraPanels != null) {
                     cameraPanels[i].setImage(imageProvider[i].createScaledImage(newScaling));
                 }
             }
         }
+    }
+
+    private void setGridSize(GridSize gs) {
+        if (gs != gridSize) {
+            this.gridSize = gs;
+            gridSizeComboBox.setSelectedItem(gs);
+            for (Component c : gridSizeMenu.getMenuComponents()) {
+                if (c instanceof JMenuItem && ((JMenuItem) c).getText().equals(gs.toString())) {
+                    ((JMenuItem) c).setSelected(true);
+                }
+            }
+
+            for (CameraPanel panel : cameraPanels) {
+                panel.setGridSize(gs.getSize());
+            }
+        }
+
     }
 
     private void exitMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_exitMenuItemActionPerformed
@@ -373,17 +450,20 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private void showGridMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_showGridMenuItemActionPerformed
         for (CameraPanel panel : cameraPanels) {
             panel.setShowGrid(showGridMenuItem.isSelected());
-        }        
+        }
     }//GEN-LAST:event_showGridMenuItemActionPerformed
 
     private void presevereAspectRatioMenuItemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_presevereAspectRatioMenuItemActionPerformed
         for (CameraPanel panel : cameraPanels) {
             panel.setPreserveAspectRatio(presevereAspectRatioMenuItem.isSelected());
-        }  
+        }
     }//GEN-LAST:event_presevereAspectRatioMenuItemActionPerformed
 
-    
-    
+    private void gridSizeComboBoxActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_gridSizeComboBoxActionPerformed
+        GridSize newSize = gridSizeComboBox.getItemAt(gridSizeComboBox.getSelectedIndex());
+        setGridSize(newSize);
+    }//GEN-LAST:event_gridSizeComboBoxActionPerformed
+
     private void cameraPanelMouseClicked(java.awt.event.MouseEvent evt, int position) {
         if (evt.getClickCount() == 2) {
             Component clickedPanel = evt.getComponent();
@@ -439,14 +519,18 @@ public class IntegrationGantryFrame extends javax.swing.JFrame {
     private javax.swing.JMenuItem exitMenuItem;
     private javax.swing.JMenu fileMenu;
     private javax.swing.JTextField fpsTextBox;
+    private javax.swing.JComboBox<GridSize> gridSizeComboBox;
+    private javax.swing.JMenu gridSizeMenu;
     private javax.swing.JPanel imagePanel;
     private javax.swing.JMenu imageScalingMenu;
+    private javax.swing.JLabel jLabel1;
     private javax.swing.JMenuBar jMenuBar1;
     private javax.swing.JLabel leftCoordinateLabel;
     private javax.swing.JCheckBoxMenuItem presevereAspectRatioMenuItem;
     private javax.swing.JLabel rightCoordinateLabel;
     private javax.swing.JCheckBox showEdgesCheckBox;
     private javax.swing.JCheckBoxMenuItem showEdgesMenuItem;
+    private javax.swing.JCheckBox showGridCheckBox;
     private javax.swing.JCheckBoxMenuItem showGridMenuItem;
     private javax.swing.JCheckBoxMenuItem showROIMenuItem;
     private javax.swing.JLabel topCoordinateLabel;

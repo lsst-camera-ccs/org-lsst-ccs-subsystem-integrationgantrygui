@@ -60,11 +60,6 @@
                 </Property>
               </Properties>
             </MenuItem>
-            <Menu class="javax.swing.JMenu" name="imageScalingMenu">
-              <Properties>
-                <Property name="text" type="java.lang.String" value="Image Scaling"/>
-              </Properties>
-            </Menu>
             <MenuItem class="javax.swing.JCheckBoxMenuItem" name="showGridMenuItem">
               <Properties>
                 <Property name="selected" type="boolean" value="true"/>
@@ -83,6 +78,16 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="presevereAspectRatioMenuItemActionPerformed"/>
               </Events>
             </MenuItem>
+            <Menu class="javax.swing.JMenu" name="imageScalingMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Image Scaling"/>
+              </Properties>
+            </Menu>
+            <Menu class="javax.swing.JMenu" name="gridSizeMenu">
+              <Properties>
+                <Property name="text" type="java.lang.String" value="Grid Size"/>
+              </Properties>
+            </Menu>
           </SubComponents>
         </Menu>
       </SubComponents>
@@ -135,7 +140,13 @@
                   <Component id="zoomCheckBox" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="showEdgesCheckBox" min="-2" max="-2" attributes="0"/>
-                  <EmptySpace max="32767" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="showGridCheckBox" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="jLabel1" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace max="-2" attributes="0"/>
+                  <Component id="gridSizeComboBox" min="-2" max="-2" attributes="0"/>
+                  <EmptySpace pref="586" max="32767" attributes="0"/>
                   <Component id="jLabel5" min="-2" max="-2" attributes="0"/>
                   <EmptySpace max="-2" attributes="0"/>
                   <Component id="fpsTextBox" min="-2" max="-2" attributes="0"/>
@@ -152,6 +163,9 @@
                       <Component id="jLabel6" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="zoomCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
                       <Component id="showEdgesCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="showGridCheckBox" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="jLabel1" alignment="3" min="-2" max="-2" attributes="0"/>
+                      <Component id="gridSizeComboBox" alignment="3" min="-2" max="-2" attributes="0"/>
                   </Group>
                   <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
               </Group>
@@ -208,6 +222,27 @@
           <Events>
             <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="showEdgesCheckBoxActionPerformed"/>
           </Events>
+        </Component>
+        <Component class="javax.swing.JCheckBox" name="showGridCheckBox">
+          <Properties>
+            <Property name="model" type="javax.swing.ButtonModel" editor="org.netbeans.modules.form.RADConnectionPropertyEditor">
+              <Connection code="showGridMenuItem.getModel()" type="code"/>
+            </Property>
+            <Property name="text" type="java.lang.String" value="Show Grid"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JLabel" name="jLabel1">
+          <Properties>
+            <Property name="text" type="java.lang.String" value="Grid Size:"/>
+          </Properties>
+        </Component>
+        <Component class="javax.swing.JComboBox" name="gridSizeComboBox">
+          <Events>
+            <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="gridSizeComboBoxActionPerformed"/>
+          </Events>
+          <AuxValues>
+            <AuxValue name="JavaCodeGenerator_TypeParameters" type="java.lang.String" value="&lt;GridSize&gt;"/>
+          </AuxValues>
         </Component>
       </SubComponents>
     </Container>

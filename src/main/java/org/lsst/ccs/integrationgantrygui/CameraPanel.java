@@ -137,4 +137,8 @@ public class CameraPanel extends javax.swing.JPanel {
     void setPreserveAspectRatio(boolean selected) {
         imageComponent.setPreserveAspectRatio(selected);
     }
+
+    void setGridSize(int size) {
+        imageComponent.setGridSize(size);
+    }
 }

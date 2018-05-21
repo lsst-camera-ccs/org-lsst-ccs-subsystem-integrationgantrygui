@@ -35,8 +35,8 @@ public class ImageComponent extends JComponent {
     private Color edgeColor = Color.RED;
     private boolean preserveAspectRatio = true;
     private boolean showGrid = true;
-    private Color gridColor = Color.BLACK;
-    private Stroke gridStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, new float[]{10.0f, 20.0f}, 0.0f);
+    private final Color gridColor = Color.BLACK;
+    private final Stroke gridStroke = new BasicStroke(1.0f, BasicStroke.CAP_BUTT, BasicStroke.JOIN_MITER, 1.0f, new float[]{10.0f, 20.0f}, 0.0f);
     private int gridSize = 400;
     private VolatileImage volatileImage;
     private Rectangle.Double zoomRegion;
@@ -281,5 +281,11 @@ public class ImageComponent extends JComponent {
         this.zoomToROI = zoom;
         renderOffscreen();
         repaint();
+    }
+
+    void setGridSize(int size) {
+        this.gridSize = size;
+        renderOffscreen();
+        repaint();        
     }
 }
