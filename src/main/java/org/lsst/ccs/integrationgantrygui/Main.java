@@ -8,9 +8,11 @@ import java.nio.file.Paths;
 import java.nio.file.StandardWatchEventKinds;
 import java.nio.file.WatchKey;
 import java.nio.file.WatchService;
+import java.nio.file.attribute.FileTime;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -23,6 +25,7 @@ import java.util.stream.Stream;
 import javax.swing.SwingUtilities;
 import nom.tam.fits.TruncatedFileException;
 import javax.script.ScriptException;
+import org.lsst.ccs.bus.data.KeyValueDataList;
 
 /**
  * Main class for the integration gantry gui
@@ -42,6 +45,7 @@ public class Main {
     private JSONParser parser;
     private IntegrationGantryFrame frame;
     private LinkedBlockingQueue[] queues;
+    private final Map<Integer,KeyValueDataList> trendingMap = new ConcurrentHashMap<>();
 
     Main() {
         cameraMap.put(0, 2);
@@ -183,6 +187,7 @@ public class Main {
 
     private void handleTextFile(Path fullPath, int index) {
         try {
+            FileTime lastModifiedTime = Files.getLastModifiedTime(fullPath);
             List<String> text = Files.readAllLines(fullPath);
             if (!text.isEmpty()) {
                 Matcher matcher = textPattern.matcher(text.get(0));
@@ -192,7 +197,9 @@ public class Main {
                     double h2 = parseDouble(matcher.group(5));
                     double v1 = parseDouble(matcher.group(9));
                     double v2 = parseDouble(matcher.group(11));
-                    // Parse the string...
+                    // store the data for trending
+                    storeTrendingData(index, lastModifiedTime, h1, h2, v1, v2);
+                    // Uodate gui
                     SwingUtilities.invokeLater(() -> {
                         frame.setLabel(findex, h1, h2, v1, v2);
                     });
@@ -230,5 +237,14 @@ public class Main {
         } catch (NumberFormatException x) {
             return Double.NaN;
         }
+    }
+
+    private void storeTrendingData(int index, FileTime lastModifiedTime, double h1, double h2, double v1, double v2) {
+        KeyValueDataList dl = new KeyValueDataList(lastModifiedTime.toMillis());
+        dl.addData("h1",h1);
+        dl.addData("h2",h2);
+        dl.addData("v1",v1);
+        dl.addData("v2",v2);
+        trendingMap.put(index,dl);
     }
 }

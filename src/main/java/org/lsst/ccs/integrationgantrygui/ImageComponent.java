@@ -15,6 +15,7 @@ import java.awt.image.BufferedImage;
 import java.awt.image.VolatileImage;
 import java.util.List;
 import javax.swing.JComponent;
+import javax.swing.SwingUtilities;
 
 /**
  * Simple component for displaying a buffered image
@@ -58,9 +59,13 @@ public class ImageComponent extends JComponent {
 
     final void setImage(BufferedImage image) {
 
-        this.originalImage = image;
-        renderOffscreen();
-        repaint();
+        VolatileImage newImage = createVolatileImage(this.getWidth(), this.getHeight());        
+        renderOffscreen(image,newImage);
+        SwingUtilities.invokeLater(()->{
+            this.originalImage = image;
+            this.volatileImage = newImage;
+            repaint();
+        });
     }
 
     BufferedImage getImage() {
@@ -69,13 +74,13 @@ public class ImageComponent extends JComponent {
 
     public void setShowROI(boolean showROI) {
         this.showROI = showROI;
-        renderOffscreen();
+        ImageComponent.this.renderOffscreen();
         repaint();
     }
 
     void setShowEdges(boolean show) {
         this.showEdges = show;
-        renderOffscreen();
+        ImageComponent.this.renderOffscreen();
         repaint();
     }
 
@@ -122,8 +127,12 @@ public class ImageComponent extends JComponent {
             // old vImg doesn't work with new GraphicsConfig; re-create it
             volatileImage = createVolatileImage(this.getWidth(), this.getHeight());
         }
-        if (originalImage != null && volatileImage != null) {
-            Graphics2D g2 = volatileImage.createGraphics();
+        renderOffscreen(originalImage, volatileImage);
+    }
+    void renderOffscreen(BufferedImage sourceImage, VolatileImage destinationImage) {
+         
+        if (sourceImage != null && destinationImage != null) {
+            Graphics2D g2 = destinationImage.createGraphics();
             if (preserveAspectRatio) {
                 g2.setColor(getBackground());
                 g2.fillRect(0, 0, getWidth(), getHeight());
@@ -138,16 +147,16 @@ public class ImageComponent extends JComponent {
                 g2.translate(-zoomRegion.x, -zoomRegion.y);
                 g2.translate(0, -zoomRegion.getHeight());
             } else {
-                double hScale = ((double) getWidth()) / originalImage.getWidth();
-                double vScale = ((double) getHeight()) / originalImage.getHeight();
+                double hScale = ((double) getWidth()) / sourceImage.getWidth();
+                double vScale = ((double) getHeight()) / sourceImage.getHeight();
                 if (preserveAspectRatio) {
                     vScale = hScale = Math.min(hScale, vScale);
                 }
                 g2.scale(hScale, -vScale);
-                g2.translate(0, -originalImage.getHeight());
+                g2.translate(0, -sourceImage.getHeight());
             }
-            Timed.execute(() -> g2.drawImage(originalImage, 0, 0, null),
-                    "Offscreen paint image of type %d and size %dx%d took %dms", originalImage.getType(), originalImage.getWidth(), originalImage.getHeight()
+            Timed.execute(() -> g2.drawImage(sourceImage, 0, 0, null),
+                    "Offscreen paint image of type %d and size %dx%d took %dms", sourceImage.getType(), sourceImage.getWidth(), sourceImage.getHeight()
             );
             if (showROI) {
                 if (horizontalROI != null) {
@@ -183,13 +192,13 @@ public class ImageComponent extends JComponent {
             }
             if (showGrid) {
                 Path2D.Double grid = new Path2D.Double();
-                for (double x = 0; x < originalImage.getWidth(); x += gridSize) {
+                for (double x = 0; x < sourceImage.getWidth(); x += gridSize) {
                     grid.moveTo(x, 0);
-                    grid.lineTo(x, originalImage.getHeight());
+                    grid.lineTo(x, sourceImage.getHeight());
                 }
-                for (double y = 0; y < originalImage.getHeight(); y += gridSize) {
+                for (double y = 0; y < sourceImage.getHeight(); y += gridSize) {
                     grid.moveTo(0, y);
-                    grid.lineTo(originalImage.getWidth(), y);
+                    grid.lineTo(sourceImage.getWidth(), y);
                 }
                 g2.setColor(gridColor);
                 g2.setXORMode(getBackground());
@@ -214,11 +223,11 @@ public class ImageComponent extends JComponent {
 
             if (returnCode == VolatileImage.IMAGE_RESTORED) {
                 // Contents need to be restored
-                renderOffscreen();      // restore contents
+                ImageComponent.this.renderOffscreen();      // restore contents
             } else if (returnCode == VolatileImage.IMAGE_INCOMPATIBLE) {
                 // old vImg doesn't work with new GraphicsConfig; re-create it
                 volatileImage = createVolatileImage(this.getWidth(), this.getHeight());
-                renderOffscreen();
+                ImageComponent.this.renderOffscreen();
             }
             Timed.execute(() -> g.drawImage(volatileImage, 0, 0, this),
                     "paint image of size %dx%d took %dms", volatileImage.getWidth(), volatileImage.getHeight()
@@ -249,7 +258,7 @@ public class ImageComponent extends JComponent {
 
     public void setEdgeColor(Color edgeColor) {
         this.edgeColor = edgeColor;
-        renderOffscreen();
+        ImageComponent.this.renderOffscreen();
         repaint();
     }
 
@@ -259,7 +268,7 @@ public class ImageComponent extends JComponent {
 
     public void setPreserveAspectRatio(boolean preserveAspectRatio) {
         this.preserveAspectRatio = preserveAspectRatio;
-        renderOffscreen();
+        ImageComponent.this.renderOffscreen();
         repaint();
     }
 
@@ -269,7 +278,7 @@ public class ImageComponent extends JComponent {
 
     public void setShowGrid(boolean showGrid) {
         this.showGrid = showGrid;
-        renderOffscreen();
+        ImageComponent.this.renderOffscreen();
         repaint();
     }
 
@@ -279,13 +288,13 @@ public class ImageComponent extends JComponent {
 
     void setZoomToROI(boolean zoom) {
         this.zoomToROI = zoom;
-        renderOffscreen();
+        ImageComponent.this.renderOffscreen();
         repaint();
     }
 
     void setGridSize(int size) {
         this.gridSize = size;
-        renderOffscreen();
+        ImageComponent.this.renderOffscreen();
         repaint();        
     }
 }
