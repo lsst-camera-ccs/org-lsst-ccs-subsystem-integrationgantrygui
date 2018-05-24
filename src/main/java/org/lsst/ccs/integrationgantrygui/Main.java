@@ -23,8 +23,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 import javax.swing.SwingUtilities;
-import nom.tam.fits.TruncatedFileException;
 import javax.script.ScriptException;
+import org.lsst.ccs.bus.data.KeyValueData;
 import org.lsst.ccs.bus.data.KeyValueDataList;
 
 /**
@@ -35,6 +35,7 @@ import org.lsst.ccs.bus.data.KeyValueDataList;
 public class Main {
 
     private static final Logger LOG = Logger.getLogger(Main.class.getName());
+    static final int NCAMERAS = 4;
     private final Path watchDir = Paths.get(System.getProperty("watchDir", "/mnt/ramdisk"));
     private final Pattern watchPattern = Pattern.compile(System.getProperty("watchPattern", "[a-z|A-Z|_]+(\\d)_rng\\d+.*"));
     private final Pattern textPattern = Pattern.compile("((horiz)?\\s*((\\d|\\.)*)?\\s*((\\d|\\.)*)?.*)\\s+\\|\\s+((vert)?\\s*((\\d|\\.)*)?\\s*((\\d|\\.)*)?.*)");
@@ -45,7 +46,7 @@ public class Main {
     private JSONParser parser;
     private IntegrationGantryFrame frame;
     private LinkedBlockingQueue[] queues;
-    private final Map<Integer,KeyValueDataList> trendingMap = new ConcurrentHashMap<>();
+    private final Map<Integer, KeyValueDataList> trendingMap = new ConcurrentHashMap<>();
 
     Main() {
         cameraMap.put(0, 2);
@@ -54,7 +55,7 @@ public class Main {
         cameraMap.put(3, 1);
     }
 
-    private void start() throws IOException, InterruptedException {
+    void start() throws IOException, InterruptedException {
         ExecutorService workQueue = Executors.newCachedThreadPool();
         frame = new IntegrationGantryFrame();
 
@@ -62,7 +63,7 @@ public class Main {
             frame.setVisible(true);
         });
 
-        queues = new LinkedBlockingQueue[4];
+        queues = new LinkedBlockingQueue[NCAMERAS];
         for (int i = 0; i < queues.length; i++) {
             LinkedBlockingQueue<Path> queue = new LinkedBlockingQueue<>(1);
             int index = i;
@@ -71,10 +72,14 @@ public class Main {
                 for (;;) {
                     try {
                         Path path = queue.take();
-                        ScalableImageProvider image = FitsFast.readFits(path.toFile());
-                        frame.setImage(index, image);
-                        count.getAndIncrement();
-                    } catch (InterruptedException | IOException | TruncatedFileException | BufferUnderflowException ex) {
+                        Timed.execute(() -> {
+                            ScalableImageProvider image = FitsFast.readFits(path.toFile());
+                            frame.setImage(index, image);
+                            count.getAndIncrement();
+                            return null;
+                        }, "Processing image took %dms");
+
+                    } catch (InterruptedException | BufferUnderflowException ex) {
                         LOG.log(Level.SEVERE, "Exception in animation thread", ex);
                     }
                 }
@@ -97,8 +102,8 @@ public class Main {
         parser = new JSONParser();
 
         Stream<Path> pathList = Files.list(watchDir);
-        Path[] fitsFiles = new Path[4];
-        Path[] textFiles = new Path[4];
+        Path[] fitsFiles = new Path[NCAMERAS];
+        Path[] textFiles = new Path[NCAMERAS];
         Path[] jsonFiles = new Path[2];
         pathList.forEach((path) -> {
             Path fullPath = watchDir.resolve(path);
@@ -124,13 +129,13 @@ public class Main {
                 }
             }
         });
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < NCAMERAS; i++) {
             Path fullPath = fitsFiles[i];
             if (fullPath != null) {
                 handleFitsFile(fullPath, i);
             }
         }
-        for (int i = 0; i < 4; i++) {
+        for (int i = 0; i < NCAMERAS; i++) {
             Path fullPath = textFiles[i];
             if (fullPath != null) {
                 handleTextFile(fullPath, i);
@@ -142,30 +147,32 @@ public class Main {
                 handleJSONFile(fullPath.getFileName().toString(), fullPath);
             }
         }
-        
-        try (WatchService watchService = watchDir.getFileSystem().newWatchService()) {
-            watchDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
-            for (;;) {
-                WatchKey take = watchService.take();
-                take.pollEvents().stream().map((event) -> (Path) event.context()).forEach((path) -> {
-                    Path fullPath = watchDir.resolve(path);
-                    String fileName = fullPath.getFileName().toString();
-                    Matcher matcher = watchPattern.matcher(fileName);
-                    if (matcher.matches()) {
-                        int index = Integer.parseInt(matcher.group(1));
-                        int mappedIndex = cameraMap.get(index);
-                        if (fileName.endsWith(".fits")) {
-                            handleFitsFile(fullPath, mappedIndex);
-                        } else if (fileName.endsWith(".txt")) {
-                            handleTextFile(fullPath, mappedIndex);
+        Runnable fileWatcher = () -> {
+            try (WatchService watchService = watchDir.getFileSystem().newWatchService()) {
+                watchDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
+                for (;;) {
+                    WatchKey take = watchService.take();
+                    take.pollEvents().stream().map((event) -> (Path) event.context()).forEach((path) -> {
+                        Path fullPath = watchDir.resolve(path);
+                        String fileName = fullPath.getFileName().toString();
+                        Matcher matcher = watchPattern.matcher(fileName);
+                        if (matcher.matches()) {
+                            int index = Integer.parseInt(matcher.group(1));
+                            int mappedIndex = cameraMap.get(index);
+                            if (fileName.endsWith(".fits")) {
+                                handleFitsFile(fullPath, mappedIndex);
+                            } else if (fileName.endsWith(".txt")) {
+                                handleTextFile(fullPath, mappedIndex);
+                            }
+                        } else if (fileName.endsWith(".json")) {
+                            handleJSONFile(fileName, fullPath);
                         }
-                    } else if (fileName.endsWith(".json")) {
-                        handleJSONFile(fileName, fullPath);
-                    }
-                });
-                take.reset();
+                    });
+                    take.reset();
+                }
             }
-        }
+        };
+        workQueue.submit(fileWatcher);
     }
 
     private void handleFitsFile(Path fullPath, int index) {
@@ -241,10 +248,17 @@ public class Main {
 
     private void storeTrendingData(int index, FileTime lastModifiedTime, double h1, double h2, double v1, double v2) {
         KeyValueDataList dl = new KeyValueDataList(lastModifiedTime.toMillis());
-        dl.addData("h1",h1);
-        dl.addData("h2",h2);
-        dl.addData("v1",v1);
-        dl.addData("v2",v2);
-        trendingMap.put(index,dl);
+        String prefix = "Camera" + index + "/";
+        dl.addData(prefix + "h1", h1);
+        dl.addData(prefix + "h2", h2);
+        dl.addData(prefix + "hGap", 25 * (h2 - h1));
+        dl.addData(prefix + "v1", v1);
+        dl.addData(prefix + "v2", v2);
+        dl.addData(prefix + "vGap", 25 * (v2 - v1));
+        trendingMap.put(index, dl);
+    }
+
+    KeyValueData getTrendingForCamera(int index) {
+        return trendingMap.get(index);
     }
 }
