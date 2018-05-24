@@ -55,7 +55,7 @@ public class Main {
         cameraMap.put(3, 1);
     }
 
-    void start() throws IOException, InterruptedException {
+    void start() throws IOException {
         ExecutorService workQueue = Executors.newCachedThreadPool();
         frame = new IntegrationGantryFrame();
 
@@ -170,6 +170,8 @@ public class Main {
                     });
                     take.reset();
                 }
+            } catch (IOException | InterruptedException x) {
+                throw new RuntimeException("Error in watch loop",x);
             }
         };
         workQueue.submit(fileWatcher);
