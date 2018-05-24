@@ -34,7 +34,8 @@ public class IGGUISubsystem implements HasLifecycle {
     @Override
     public void postStart() {
         try {
-            main.start();
+            // Start the main routine without the GUI
+            main.start(false);
         } catch (IOException ex) {
             throw new RuntimeException("Error calling start", ex);
         }
@@ -43,7 +44,6 @@ public class IGGUISubsystem implements HasLifecycle {
     @Override
     public void build() {
         pts.scheduleAgentPeriodicTask(new AgentPeriodicTask("publish-trending", () -> {
-            LOG.info("looking for stuff to publish");
             for (int i = 0; i < Main.NCAMERAS; i++) {
                 KeyValueData data = main.getTrendingForCamera(i);
                 if (data != null && data.getTimestamp() > lastUpdateTime[i]) {

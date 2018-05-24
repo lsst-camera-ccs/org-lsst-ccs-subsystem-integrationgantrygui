@@ -47,6 +47,7 @@ public class Main {
     private IntegrationGantryFrame frame;
     private LinkedBlockingQueue[] queues;
     private final Map<Integer, KeyValueDataList> trendingMap = new ConcurrentHashMap<>();
+    private List<Number>[][] rois = new List[2][NCAMERAS];
 
     Main() {
         cameraMap.put(0, 2);
@@ -55,50 +56,59 @@ public class Main {
         cameraMap.put(3, 1);
     }
 
-    void start() throws IOException {
+    /**
+     *
+     * @param startGUI If <code>false</code>does not start the GUI (used when we
+     * just want to run as a headless subsystem).
+     * @throws IOException
+     */
+    void start(boolean startGUI) throws IOException {
         ExecutorService workQueue = Executors.newCachedThreadPool();
-        frame = new IntegrationGantryFrame();
 
-        java.awt.EventQueue.invokeLater(() -> {
-            frame.setVisible(true);
-        });
+        if (startGUI) {
+            frame = new IntegrationGantryFrame();
 
-        queues = new LinkedBlockingQueue[NCAMERAS];
-        for (int i = 0; i < queues.length; i++) {
-            LinkedBlockingQueue<Path> queue = new LinkedBlockingQueue<>(1);
-            int index = i;
-            queues[i] = queue;
+            java.awt.EventQueue.invokeLater(() -> {
+                frame.setVisible(true);
+            });
+
+            queues = new LinkedBlockingQueue[NCAMERAS];
+            for (int i = 0; i < queues.length; i++) {
+                LinkedBlockingQueue<Path> queue = new LinkedBlockingQueue<>(1);
+                int index = i;
+                queues[i] = queue;
+                Runnable runnable = () -> {
+                    for (;;) {
+                        try {
+                            Path path = queue.take();
+                            Timed.execute(() -> {
+                                ScalableImageProvider image = FitsFast.readFits(path.toFile());
+                                frame.setImage(index, image);
+                                count.getAndIncrement();
+                                return null;
+                            }, "Processing image took %dms");
+
+                        } catch (InterruptedException | BufferUnderflowException ex) {
+                            LOG.log(Level.SEVERE, "Exception in animation thread", ex);
+                        }
+                    }
+                };
+                workQueue.execute(runnable);
+            }
+
+            @SuppressWarnings("SleepWhileInLoop")
             Runnable runnable = () -> {
                 for (;;) {
                     try {
-                        Path path = queue.take();
-                        Timed.execute(() -> {
-                            ScalableImageProvider image = FitsFast.readFits(path.toFile());
-                            frame.setImage(index, image);
-                            count.getAndIncrement();
-                            return null;
-                        }, "Processing image took %dms");
-
-                    } catch (InterruptedException | BufferUnderflowException ex) {
-                        LOG.log(Level.SEVERE, "Exception in animation thread", ex);
+                        frame.setFPS(count.getAndSet(0));
+                        Thread.sleep(1000);
+                    } catch (InterruptedException ex) {
+                        LOG.log(Level.SEVERE, "Exception in timer thread", ex);
                     }
                 }
             };
             workQueue.execute(runnable);
         }
-
-        @SuppressWarnings("SleepWhileInLoop")
-        Runnable runnable = () -> {
-            for (;;) {
-                try {
-                    frame.setFPS(count.getAndSet(0));
-                    Thread.sleep(1000);
-                } catch (InterruptedException ex) {
-                    LOG.log(Level.SEVERE, "Exception in timer thread", ex);
-                }
-            }
-        };
-        workQueue.execute(runnable);
         parser = new JSONParser();
 
         Stream<Path> pathList = Files.list(watchDir);
@@ -129,24 +139,29 @@ public class Main {
                 }
             }
         });
-        for (int i = 0; i < NCAMERAS; i++) {
-            Path fullPath = fitsFiles[i];
-            if (fullPath != null) {
-                handleFitsFile(fullPath, i);
+        if (startGUI) {
+            for (int i = 0; i < NCAMERAS; i++) {
+                Path fullPath = fitsFiles[i];
+                if (fullPath != null) {
+                    handleFitsFile(fullPath, i);
+                }
             }
         }
-        for (int i = 0; i < NCAMERAS; i++) {
-            Path fullPath = textFiles[i];
-            if (fullPath != null) {
-                handleTextFile(fullPath, i);
-            }
-        }
+
         for (int i = 0; i < 2; i++) {
             Path fullPath = jsonFiles[i];
             if (fullPath != null) {
                 handleJSONFile(fullPath.getFileName().toString(), fullPath);
             }
         }
+
+        for (int i = 0; i < NCAMERAS; i++) {
+            Path fullPath = textFiles[i];
+            if (fullPath != null) {
+                handleTextFile(fullPath, i);
+            }
+        }
+
         Runnable fileWatcher = () -> {
             try (WatchService watchService = watchDir.getFileSystem().newWatchService()) {
                 watchDir.register(watchService, StandardWatchEventKinds.ENTRY_CREATE, StandardWatchEventKinds.ENTRY_MODIFY);
@@ -159,7 +174,7 @@ public class Main {
                         if (matcher.matches()) {
                             int index = Integer.parseInt(matcher.group(1));
                             int mappedIndex = cameraMap.get(index);
-                            if (fileName.endsWith(".fits")) {
+                            if (fileName.endsWith(".fits") && startGUI) {
                                 handleFitsFile(fullPath, mappedIndex);
                             } else if (fileName.endsWith(".txt")) {
                                 handleTextFile(fullPath, mappedIndex);
@@ -171,7 +186,7 @@ public class Main {
                     take.reset();
                 }
             } catch (IOException | InterruptedException x) {
-                throw new RuntimeException("Error in watch loop",x);
+                throw new RuntimeException("Error in watch loop", x);
             }
         };
         workQueue.submit(fileWatcher);
@@ -209,9 +224,11 @@ public class Main {
                     // store the data for trending
                     storeTrendingData(index, lastModifiedTime, h1, h2, v1, v2);
                     // Uodate gui
-                    SwingUtilities.invokeLater(() -> {
-                        frame.setLabel(findex, h1, h2, v1, v2);
-                    });
+                    if (frame != null) {
+                        SwingUtilities.invokeLater(() -> {
+                            frame.setLabel(findex, h1, h2, v1, v2);
+                        });
+                    }
                 }
             }
         } catch (IOException ex) {
@@ -226,9 +243,12 @@ public class Main {
             rois.forEach((t, u) -> {
                 int index = Integer.parseInt(t);
                 int mappedIndex = cameraMap.get(index);
-                SwingUtilities.invokeLater(() -> {
-                    frame.setROI(isHorizontal, mappedIndex, u);
-                });
+                storeROI(isHorizontal, index, u);
+                if (frame != null) {
+                    SwingUtilities.invokeLater(() -> {
+                        frame.setROI(isHorizontal, mappedIndex, u);
+                    });
+                }
             });
         } catch (IOException | ScriptException ex) {
             LOG.log(Level.SEVERE, "Error reading json file", ex);
@@ -237,7 +257,7 @@ public class Main {
 
     public static void main(String[] args) throws IOException, InterruptedException {
         Main main = new Main();
-        main.start();
+        main.start(true);
     }
 
     private double parseDouble(String string) {
@@ -248,16 +268,24 @@ public class Main {
         }
     }
 
+    private void storeROI(boolean isHorizontal, int index, List<Number> roi) {
+        rois[isHorizontal ? 0 : 1][index] = roi;
+    }
+
     private void storeTrendingData(int index, FileTime lastModifiedTime, double h1, double h2, double v1, double v2) {
         KeyValueDataList dl = new KeyValueDataList(lastModifiedTime.toMillis());
-        String prefix = "Camera" + index + "/";
-        dl.addData(prefix + "h1", h1);
-        dl.addData(prefix + "h2", h2);
-        dl.addData(prefix + "hGap", 25 * (h2 - h1));
-        dl.addData(prefix + "v1", v1);
-        dl.addData(prefix + "v2", v2);
-        dl.addData(prefix + "vGap", 25 * (v2 - v1));
-        trendingMap.put(index, dl);
+        List<Number> horizontalROI = rois[0][index];
+        List<Number> verticalROI = rois[1][index];
+        if (horizontalROI != null && verticalROI != null) {
+            String prefix = "Camera" + index + "/";
+            dl.addData(prefix + "h1", h1 + horizontalROI.get(1).doubleValue());
+            dl.addData(prefix + "h2", h2 + horizontalROI.get(1).doubleValue());
+            dl.addData(prefix + "hGap", 25 * (h2 - h1));
+            dl.addData(prefix + "v1", v1 + verticalROI.get(0).doubleValue());
+            dl.addData(prefix + "v2", v2 + verticalROI.get(0).doubleValue());
+            dl.addData(prefix + "vGap", 25 * (v2 - v1));
+            trendingMap.put(index, dl);
+        }
     }
 
     KeyValueData getTrendingForCamera(int index) {
