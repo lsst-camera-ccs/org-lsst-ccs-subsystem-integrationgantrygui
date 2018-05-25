@@ -269,10 +269,12 @@ public class Main {
     }
 
     private void storeROI(boolean isHorizontal, int index, List<Number> roi) {
+        LOG.log(Level.INFO, "Setting {0} roi index {1} to {2}", new Object[]{isHorizontal, index, roi});
         rois[isHorizontal ? 0 : 1][index] = roi;
     }
 
     private void storeTrendingData(int index, FileTime lastModifiedTime, double h1, double h2, double v1, double v2) {
+        LOG.log(Level.INFO, "storeTrendingData index {0} date {1} to {2},{3},{4},{5}", new Object[]{index, lastModifiedTime, h1, h2, v1, v2});
         KeyValueDataList dl = new KeyValueDataList(lastModifiedTime.toMillis());
         List<Number> horizontalROI = rois[0][index];
         List<Number> verticalROI = rois[1][index];
