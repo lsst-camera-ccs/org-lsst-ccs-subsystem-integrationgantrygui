@@ -46,9 +46,9 @@ public class IGGUISubsystem implements HasLifecycle {
         pts.scheduleAgentPeriodicTask(new AgentPeriodicTask("publish-trending", () -> {
             for (int i = 0; i < Main.NCAMERAS; i++) {
                 KeyValueData data = main.getTrendingForCamera(i);
-                if (data != null && data.getTimestamp() > lastUpdateTime[i]) {
+                if (data != null && data.getCCSTimeStamp().getUTCInstant().toEpochMilli() > lastUpdateTime[i]) {
                     subsys.publishSubsystemDataOnStatusBus(data);
-                    lastUpdateTime[i] = data.getTimestamp();
+                    lastUpdateTime[i] = data.getCCSTimeStamp().getUTCInstant().toEpochMilli();
                 }
             }
 
