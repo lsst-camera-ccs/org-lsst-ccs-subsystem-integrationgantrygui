@@ -15,6 +15,13 @@
         <relativePath />
     </parent>
     
+    <scm>
+        <url>https://github.com/lsst-camera-ccs/org-lsst-ccs-subsystem-integrationgantrygui</url>
+        <connection>scm:git:git://github.com/lsst-camera-ccs/org-lsst-ccs-subsystem-integrationgantrygui.git</connection>
+        <developerConnection>scm:git:ssh://git@github.com/lsst-camera-ccs/org-lsst-ccs-subsystem-integrationgantrygui.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
     <repositories>
         <repository>
             <id>lsst-maven2-public</id>
