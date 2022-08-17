@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.logging.Logger;
 import org.lsst.ccs.Subsystem;
+import org.lsst.ccs.bus.data.AgentInfo;
 import org.lsst.ccs.bus.data.KeyValueData;
 import org.lsst.ccs.commons.annotations.LookupField;
 import org.lsst.ccs.framework.AgentPeriodicTask;
@@ -18,7 +19,7 @@ import org.lsst.ccs.services.AgentPeriodicTaskService;
  *
  * @author tonyj
  */
-public class IGGUISubsystem implements HasLifecycle {
+public class IGGUISubsystem extends Subsystem implements HasLifecycle {
 
     private static final Logger LOG = Logger.getLogger(IGGUISubsystem.class.getName());
 
@@ -30,6 +31,10 @@ public class IGGUISubsystem implements HasLifecycle {
 
     private final Main main = new Main();
     private final long[] lastUpdateTime = new long[4];
+
+    public IGGUISubsystem() {
+        super("ig-gui", AgentInfo.AgentType.WORKER);
+    }
 
     @Override
     public void postStart() {
