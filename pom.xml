@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
     <groupId>org.lsst</groupId>
     <artifactId>org-lsst-ccs-subsystem-integrationgantrygui</artifactId>
-    <version>1.0.1-SNAPSHOT</version>
+    <version>1.0.1</version>
     <packaging>jar</packaging>
     <url>${org.lsst.ccs.site.url}</url>
             
@@ -19,7 +19,7 @@
         <url>https://github.com/lsst-camera-ccs/org-lsst-ccs-subsystem-integrationgantrygui</url>
         <connection>scm:git:git://github.com/lsst-camera-ccs/org-lsst-ccs-subsystem-integrationgantrygui.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/lsst-camera-ccs/org-lsst-ccs-subsystem-integrationgantrygui.git</developerConnection>
-        <tag>HEAD</tag>
+        <tag>org-lsst-ccs-subsystem-integrationgantrygui-1.0.1</tag>
     </scm>
 
     <repositories>
