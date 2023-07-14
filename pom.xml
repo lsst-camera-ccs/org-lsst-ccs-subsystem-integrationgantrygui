@@ -11,7 +11,7 @@
     <parent>
         <groupId>org.lsst</groupId>
         <artifactId>org-lsst-ccs-subsystem-main</artifactId>
-        <version>6.0.4</version>
+        <version>6.1.17</version>
         <relativePath />
     </parent>
     
@@ -26,7 +26,7 @@
         <repository>
             <id>lsst-maven2-public</id>
             <name>LSST Maven 2 central repository</name>
-            <url>http://repo-nexus.lsst.org/nexus/content/groups/ccs-maven2-public/</url>
+            <url>https://repo-nexus.lsst.org/nexus/content/groups/ccs-maven2-public/</url>
         </repository>
     </repositories>
         
@@ -44,6 +44,6 @@
         </dependency>
     </dependencies>
     <properties>
-        <org.lsst.ccs.site.url>http://repo-nexus.lsst.org/nexus/content/sites/${org.lsst.ccs.site.name}/site-root/subsystems/org-lsst-ccs-subsystem-ocsbridge/${project.version}/${project.artifactId}</org.lsst.ccs.site.url>
+        <org.lsst.ccs.site.url>https://repo-nexus.lsst.org/nexus/content/sites/${org.lsst.ccs.site.name}/site-root/subsystems/org-lsst-ccs-subsystem-ocsbridge/${project.version}/${project.artifactId}</org.lsst.ccs.site.url>
     </properties>
 </project>
